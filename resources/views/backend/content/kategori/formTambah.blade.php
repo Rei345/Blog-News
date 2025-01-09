@@ -9,7 +9,7 @@
                     @csrf
                     <div class="mb-3">
                         <label for="" class="form-label">Nama Kategori</label>
-                        <input type="text" name="nama_kategori" value="{{ old(nama_kategori) }}" class="form-control @error('nama_kategori') is-invalid @enderror">
+                        <input type="text" name="nama_kategori" value="{{ old('nama_kategori') }}" class="form-control @error('nama_kategori') is-invalid @enderror">
                         @error('nama_kategori')
                             <span style="color: red; font-weight: 600; font-size: 9pt;">{{ $message }}</span>
                         @enderror

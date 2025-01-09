@@ -31,5 +31,11 @@ class DatabaseSeeder extends Seeder
             'gambar_berita' => 'lorem.jpg',
             'id_kategori' => 1
         ]);
+
+        DB::table('page')->insert([
+            'judul_page'=> 'Lorem Ipsum',
+            'isi_page'=> 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam nec purus nec nunc',
+            'status_page' => 1
+        ]);
     }
 }
