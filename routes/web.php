@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\MenuController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Response;
@@ -63,6 +64,14 @@ Route::group(['middleware' => 'auth:user'], function(){
         Route::get('/page/ubah/{id}', [PageController::class, 'ubah'])->name('page.ubah');
         Route::post('/page/prosesUbah', [PageController::class, 'prosesUbah'])->name('page.prosesUbah');
         Route::get('/page/hapus/{id}', [PageController::class, 'hapus'])->name('page.hapus');
+
+        Route::get('/menu', [MenuController::class, 'index'])->name('menu.index');
+        Route::get('/menu/tambah', [MenuController::class, 'tambah'])->name('menu.tambah');
+        Route::post('/menu/prosesTambah', [MenuController::class, 'prosesTambah'])->name('menu.prosesTambah');
+        Route::get('/menu/ubah/{id}', [MenuController::class, 'ubah'])->name('menu.ubah');
+        Route::post('/menu/prosesUbah', [MenuController::class, 'prosesUbah'])->name('menu.prosesUbah');
+        Route::get('/menu/hapus/{id}', [MenuController::class, 'hapus'])->name('menu.hapus');
+        Route::get('/menu/order/{idMenu}/{idSwap}', [MenuController::class, 'order'])->name('menu.order');
     });
     Route::get('/logout', [AuthController::class, 'logout'])->name('auth.logout');
 });

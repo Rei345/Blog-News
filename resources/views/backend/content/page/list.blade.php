@@ -3,10 +3,10 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col-lg-6">
-                <h1 class="h3 mb-2 text-gray-800">List Berita</h1>
+                <h1 class="h3 mb-2 text-gray-800">List Page</h1>
             </div>
             <div class="col-lg-6 text-right">
-                <a href="{{ route('berita.tambah') }}" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i> Tambah</a>
+                <a href="{{ route('page.tambah') }}" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i> Tambah</a>
             </div>
         </div>
 
@@ -23,9 +23,8 @@
                         <thead>
                             <tr>
                                 <th>No</th>
-                                <th>Nama Berita</th>
-                                <th>Judul Berita</th>
-                                <th>Kategori</th>
+                                <th>Judul Page</th>
+                                <th>Status Page</th>
                                 <th>Aksi</th>
                             </tr>
                         </thead>
@@ -33,15 +32,14 @@
                             @php
                                 $no = 1;
                             @endphp
-                            @foreach ($berita as $row)
+                            @foreach ($page as $row)
                                 <tr>
                                     <td>{{ $no++ }}</td>
-                                    <td><img src="{{ route('storage', $row->gambar_berita) }}" width="50px" height="50px" alt=""></td>
-                                    <td>{{ $row->judul_berita }}</td>
-                                    <td>{{ $row->kategori->nama_kategori }}</td>
+                                    <td>{{ $row->judul_page }}</td>
+                                    <td>{{ ($row->status_page == 1 ) ? "Aktif" : "Tidak Aktif" }}</td>
                                     <td>
-                                        <a href="{{ route('berita.ubah', $row->id_kategori) }}" class="btn btn-sm btn-warning"><i class="fa fa-edit"></i> Ubah</a>
-                                        <a href="{{ route('berita.hapus', $row->id_kategori) }}" onclick="return confirm('Anda Yakin?')" class="btn btn-sm btn-danger"><i class="fa fa-trash"></i> Hapus</a>
+                                        <a href="{{ route('page.ubah', $row->id_page) }}" class="btn btn-sm btn-warning"><i class="fa fa-edit"></i> Ubah</a>
+                                        <a href="{{ route('page.hapus', $row->id_page) }}" onclick="return confirm('Anda Yakin?')" class="btn btn-sm btn-danger"><i class="fa fa-trash"></i> Hapus</a>
                                     </td>
                                 </tr>
                             @endforeach

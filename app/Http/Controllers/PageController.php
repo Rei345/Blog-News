@@ -22,11 +22,14 @@ class PageController extends Controller
     public function prosesTambah(Request $request)
     {
         $this->validate($request, [
-            'nama_kategori' =>'required'
+            'judul_page' =>'required',
+            'isi_page' =>'required'
         ]);
 
-        $page = new page();
-        $page->nama_kategori = $request->nama_kategori;
+        $page = new Page();
+        $page->judul_page = $request->judul_page;
+        $page->isi_page = $request->isi_page;
+        $page->status_page = 1;
 
         try {
             $page->save();
@@ -39,24 +42,28 @@ class PageController extends Controller
     public function ubah($id)
     {
         $page = Page::findOrFail($id);
-        return view('backend.content.kategori.formUbah', compact('page'));
+        return view('backend.content.page.formUbah', compact('page'));
     }
 
     public function prosesUbah(Request $request)
     {
         $this->validate($request, [
-            'id_kategori' =>'required',
-            'nama_kategori' =>'required',
+            'id_page' =>'required',
+            'judul_page' =>'required',
+            'isi_page' =>'required',
+            'status_page' =>'required',
         ]);
 
         $page = Page::findOrFail($request->id_page);
-        $page->nama_kategori = $request->nama_kategori;
+        $page->judul_page = $request->judul_page;
+        $page->isi_page = $request->isi_page;
+        $page->status_page = $request->status_page;
 
         try {
             $page->save();
-            return redirect(route('kategori.index'))->with('pesan', ['success', 'Berhasil ubah page']);
+            return redirect(route('page.index'))->with('pesan', ['success', 'Berhasil ubah page']);
         } catch (\Exception $e){
-            return redirect(route('kategori.index'))->with('pesan', ['danger', 'Gagal ubah page']);
+            return redirect(route('page.index'))->with('pesan', ['danger', 'Gagal ubah page']);
         }
     }
 

@@ -1,56 +1,54 @@
 @extends('backend.layout.main')
 @section('content')
     <div class="container-fluid">
-        <h1 class="h3 mb-2 text-gray-800">Form Ubah Berita</h1>
+        <h1 class="h3 mb-2 text-gray-800">Form Ubah Page</h1>
 
         <div class="card shadow mb-4">
             <div class="card-body">
-                <form action="{{ route('berita.prosesUbah') }}" method="POST" enctype="multipart/form-data">
+                <form action="{{ route('page.prosesUbah') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <div class="mb-3">
-                        <label for="" class="form-label">Judul Berita</label>
-                        <input type="text" name="judul_berita" value="{{ $berita->judul_berita }}" class="form-control @error('judul_berita') is-invalid @enderror">
-                        @error('judul_berita')
+                        <label for="" class="form-label">Judul Page</label>
+                        <input type="text" name="judul_page" value="{{ $page->judul_page }}" class="form-control @error('judul_page') is-invalid @enderror">
+                        @error('judul_page')
                             <span style="color: red; font-weight: 600; font-size: 9pt;">{{ $message }}</span>
                         @enderror
                     </div>
 
                     <div class="mb-3">
-                        <label for="" class="form-label">Kategori Berita</label>
-                        <select name="id_kategori" id="" class="form-control @error('id_kategori') is-invalid @enderror">
-                            @foreach ($kategori as $row)
-                                @php
-                                    $selected = ($row->id_kategori == $berita->id_kategori) ? 'selected' : '';
-                                @endphp
-                                <option value="{{ $row->id_kategori }}" {{ $selected }}>{{ $row->nama_kategori }}</option>
-                            @endforeach
+                        <label for="" class="form-label">Isi Page</label>
+                        <textarea id="editor" name="isi_page" cols="30" rows="10" class="form-control @error('isi_page') is-invalid @enderror">{{ $page->isi_page }}</textarea>
+                        @error('isi_page')
+                            <span style="color: red; font-weight: 600; font-size: 9pt;">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="" class="form-label">Status Page</label>
+
+                        @php
+                            $aktif = "";
+                            $tidakAktif = "";
+
+                            if ($page->status_page == 1) {
+                                $aktif = "selected";
+                            } else {
+                                $tidakAktif = "selected";
+                            }
+                        @endphp
+
+                        <select name="status_page" class="form-control @error('status_page') is-invalid @enderror" id="">
+                            <option value="1" {{ $aktif }}>Aktif</option>
+                            <option value="0" {{ $tidakAktif }}>Tidak Aktif</option>
                         </select>
-                        @error('id_kategori')
+                        @error('status_page')
                             <span style="color: red; font-weight: 600; font-size: 9pt;">{{ $message }}</span>
                         @enderror
                     </div>
 
-                    <div class="mb-3">
-                        <label for="" class="form-label">Foto Berita</label>
-                        <input type="file" name="gambar_berita" class="form-control @error('gambar_berita') is-invalid @enderror" accept="iamge/*" onchange="tampilkanPreview(this, 'tampilFoto')">
-                        @error('judul_berita')
-                            <span style="color: red; font-weight: 600; font-size: 9pt;">{{ $message }}</span>
-                        @enderror
-                        <p></p>
-                        <img id="tampilFoto" onerror="this.onerror=null;this.src='https://t4.ftcdn.net/jpg/84/73/25/49/360_F_473254957_bx69yf4ly708051805KABLN930GwaMQz.jpg'" width="15%" src="{{ route('storage', $berita->gambar_berita) }}" alt="">
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="" class="form-label">Isi Berita</label>
-                        <textarea id="editor" name="isi_berita" cols="30" rows="10" class="form-control @error('isi_berita') is-invalid @enderror">{{ $berita->isi_berita }}</textarea>
-                        @error('isi_berita')
-                            <span style="color: red; font-weight: 600; font-size: 9pt;">{{ $message }}</span>
-                        @enderror
-                    </div>
-
-                    <input type="hidden" name="id_berita" value="{{ $berita->id_berita }}">
+                    <input type="hidden" name="id_page" value="{{ $page->id_page }}">
                     <button type="submit" class="btn btn-primary">Ubah</button>
-                    <a href="{{ route('berita.index') }}" class="btn btn-secondary">Kembali</a>
+                    <a href="{{ route('page.index') }}" class="btn btn-secondary">Kembali</a>
                 </form>
             </div>
         </div>
