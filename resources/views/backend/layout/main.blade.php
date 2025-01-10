@@ -86,7 +86,7 @@
             
             <li class="nav-item">
                 <a class="nav-link" href="{{ route('menu.index') }}">
-                    <i class="fas fa-fw fa-paperclip"></i>
+                    <i class="fas fa-fw fa-bars"></i>
                     <span>Data Menu</span></a>
             </li>
 

@@ -40,8 +40,8 @@
                                         <ul>
                                             @foreach ($row->submenu as $key => $sub)
                                                 <li>{{ $sub->nama_menu }}
-                                                    <a href="{{ route('menu.ubah', $row->id_menu) }}"><i class="fa fa-edit"></i></a>
-                                                    <a href="{{ route('menu.hapus', $row->id_menu) }}"><i class="fa fa-trash"></i></a>
+                                                    <a href="{{ route('menu.ubah', $sub->id_menu) }}"><i class="fa fa-edit"></i></a>
+                                                    <a href="{{ route('menu.hapus', $sub->id_menu) }}"><i class="fa fa-trash"></i></a>
 
                                                     <span {{ ($sub->status_menu == 0) ? "(Tidak Aktif)" : "" }}></span>
                                                 </li>
@@ -54,7 +54,34 @@
                                         <a href="{{ route('menu.hapus', $row->id_menu) }}" onclick="return confirm('Anda Yakin?')" class="btn btn-sm btn-danger"><i class="fa fa-trash"></i> Hapus</a>
 
                                         @if ($loop->first)
-                                            <a href="{{ route('menu.order') }}"></a>
+                                        @php
+                                            $nextKeyMenu = $k + 1;
+                                            $nextIdMenu = $menu->get($nextKeyMenu)->id_menu;
+                                        @endphp
+                                            <a href="{{ route('menu.order', [$row->id_menu, $nextIdMenu]) }}" class="btn btn-sm btn-secondary">
+                                                <i class="fa fa-arrow-down"></i>
+                                            </a>
+                                        @elseif ($loop->last)
+                                        @php
+                                            $prevKeyMenu = $k - 1;
+                                            $prevIdMenu = $menu->get($prevKeyMenu)->id_menu;
+                                        @endphp
+                                            <a href="{{ route('menu.order', [$row->id_menu, $prevIdMenu]) }}" class="btn btn-sm btn-secondary">
+                                                <i class="fa fa-arrow-up"></i>
+                                            </a>
+                                        @else
+                                        @php
+                                            $nextKeyMenu = $k + 1;
+                                            $nextIdMenu = $menu->get($nextKeyMenu)->id_menu;
+                                            $prevKeyMenu = $k - 1;
+                                            $prevIdMenu = $menu->get($prevKeyMenu)->id_menu;
+                                        @endphp
+                                            <a href="{{ route('menu.order', [$row->id_menu, $prevIdMenu]) }}" class="btn btn-sm btn-secondary">
+                                                <i class="fa fa-arrow-up"></i>
+                                            </a>
+                                            <a href="{{ route('menu.order', [$row->id_menu, $nextIdMenu]) }}" class="btn btn-sm btn-secondary">
+                                                <i class="fa fa-arrow-down"></i>
+                                            </a>
                                         @endif
                                     </td>
                                 </tr>

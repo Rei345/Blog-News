@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\UserController;
@@ -22,9 +23,14 @@ use App\Http\Controllers\DashboardController;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// Route::get('/', function () {
+//     return view('welcome');
+// });
+
+Route::get('/', [HomeController::class, 'index'])->name('home.index');
+Route::get('/berita/{id}', [HomeController::class, 'detailBerita'])->name('home.detailBerita');
+Route::get('/page/{id}', [HomeController::class, 'detailPage'])->name('home.detailPage');
+Route::get('/berita', [HomeController::class, 'semuaBerita'])->name('home.berita');
 
 Route::get('/login', [AuthController::class, 'index'])->name('auth.index')->middleware('guest');
 Route::post('/login', [AuthController::class, 'verify'])->name('auth.verify');
