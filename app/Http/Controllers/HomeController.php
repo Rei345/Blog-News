@@ -29,7 +29,7 @@ class HomeController extends Controller
         return view ('frontend.content.detailBerita', compact('menu', 'berita'));
     }
 
-    public function datailPage($id)
+    public function detailPage($id)
     {
         $menu = $this->getMenu();
         $page = Page::findOrFail($id);

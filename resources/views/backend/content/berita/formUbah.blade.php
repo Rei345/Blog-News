@@ -32,7 +32,7 @@
 
                     <div class="mb-3">
                         <label for="" class="form-label">Foto Berita</label>
-                        <input type="file" name="gambar_berita" class="form-control @error('gambar_berita') is-invalid @enderror" accept="iamge/*" onchange="tampilkanPreview(this, 'tampilFoto')">
+                        <input type="file" name="gambar_berita" class="form-control @error('gambar_berita') is-invalid @enderror" accept="image/*" onchange="tampilkanPreview(this, 'tampilFoto')">
                         @error('judul_berita')
                             <span style="color: red; font-weight: 600; font-size: 9pt;">{{ $message }}</span>
                         @enderror

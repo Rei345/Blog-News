@@ -40,8 +40,8 @@
                                     <td>{{ $row->judul_berita }}</td>
                                     <td>{{ $row->kategori->nama_kategori }}</td>
                                     <td>
-                                        <a href="{{ route('berita.ubah', $row->id_kategori) }}" class="btn btn-sm btn-warning"><i class="fa fa-edit"></i> Ubah</a>
-                                        <a href="{{ route('berita.hapus', $row->id_kategori) }}" onclick="return confirm('Anda Yakin?')" class="btn btn-sm btn-danger"><i class="fa fa-trash"></i> Hapus</a>
+                                        <a href="{{ route('berita.ubah', $row->id_berita) }}" class="btn btn-sm btn-warning"><i class="fa fa-edit"></i> Ubah</a>
+                                        <a href="{{ route('berita.hapus', $row->id_berita) }}" onclick="return confirm('Anda Yakin?')" class="btn btn-sm btn-danger"><i class="fa fa-trash"></i> Hapus</a>
                                     </td>
                                 </tr>
                             @endforeach
