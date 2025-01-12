@@ -66,7 +66,7 @@
                                             $prevKeyMenu = $k - 1;
                                             $prevIdMenu = $menu->get($prevKeyMenu)->id_menu;
                                         @endphp
-                                            <a href="{{ route('menu.order', [$row->id_menu, $prevIdMenu]) }}" class="btn btn-sm btn-secondary">
+                                            <a href="{{ route('menu.order', [$row->id_menu, $prevIdMenu]) }}" class="btn btn-sm btn-success">
                                                 <i class="fa fa-arrow-up"></i>
                                             </a>
                                         @else
@@ -76,7 +76,7 @@
                                             $prevKeyMenu = $k - 1;
                                             $prevIdMenu = $menu->get($prevKeyMenu)->id_menu;
                                         @endphp
-                                            <a href="{{ route('menu.order', [$row->id_menu, $prevIdMenu]) }}" class="btn btn-sm btn-secondary">
+                                            <a href="{{ route('menu.order', [$row->id_menu, $prevIdMenu]) }}" class="btn btn-sm btn-success">
                                                 <i class="fa fa-arrow-up"></i>
                                             </a>
                                             <a href="{{ route('menu.order', [$row->id_menu, $nextIdMenu]) }}" class="btn btn-sm btn-secondary">
