@@ -24,6 +24,9 @@
     <script src="{{ asset('assets/vendor/jquery/jquery.min.js') }}"></script>
     <script src="{{ asset('assets/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
 
+    {{-- Link CDN SweetAlert2 --}}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 </head>
 
 <body id="page-top">
@@ -403,6 +406,25 @@
             }
         }
     </script>
+
+<script> 
+    document.querySelector(".hapus").addEventListener("click", (event) => {
+        event.preventDefault(); // Mencegah aksi default dari elemen <a>
+        Swal.fire({
+            title: "Apakah kamu yakin?",
+            text: "Kamu akan menghapus data ini",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Ya, Hapus saja!"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = event.target.closest('a').href; // Redirect setelah konfirmasi
+            }
+        });
+    });
+</script>
 
 </body>
 
