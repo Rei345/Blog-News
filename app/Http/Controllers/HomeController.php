@@ -6,6 +6,8 @@ use App\Models\Menu;
 use App\Models\Page;
 use App\Models\Berita;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class HomeController extends Controller
 {
@@ -15,6 +17,43 @@ class HomeController extends Controller
         $berita = Berita::with('kategori')->latest()->get()->take(6);
         $mostViews = Berita::with('kategori')->orderByDesc('total_views')->get()->take(3);
         return view ('frontend.content.home', compact('menu', 'berita', 'mostViews'));
+    }
+
+    public function search(Request $request)
+    {
+        $query = $request->input('search');
+        $berita = Berita::where('judul_berita', 'LIKE', "%{$query}%")
+            ->with('kategori') // Include kategori relationship
+            ->get();
+
+        $html = '';
+        foreach ($berita as $row) {
+            $html .= '
+            <div class="col-lg-4 mb-5">
+                <div class="card h-100 shadow border-0">
+                    <img class="card-img-top" src="' . route('storage', $row->gambar_berita) . '" alt="' . $row->judul_berita . '" />
+                    <div class="card-body p-4">
+                        <div class="badge bg-primary bg-gradient rounded-pill mb-2">' . $row->kategori->nama_kategori . '</div>
+                        <a class="text-decoration-none link-dark stretched-link" href="' . route('home.detailBerita', $row->id_berita) . '">
+                            <div class="h5 card-title mb-3">' . $row->judul_berita . '</div>
+                        </a>
+                        <p class="card-text mb-0">' . substr($row->isi_berita, 0, 200) . '</p>
+                    </div>
+                    <div class="card-footer p-4 pt-0 bg-transparent border-top-0">
+                        <div class="d-flex align-items-end justify-content-between">
+                            <div class="d-flex align-items-center">
+                                <div class="small">
+                                    <div class="fw-bold">Admin</div>
+                                    <div class="text-muted">' . $row->created_at->format('d M Y') . '</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>';
+        }
+
+        return response()->json(['html' => $html]);
     }
 
     public function detailBerita($id)

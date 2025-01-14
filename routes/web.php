@@ -31,6 +31,7 @@ Route::get('/', [HomeController::class, 'index'])->name('home.index');
 Route::get('/berita/{id}', [HomeController::class, 'detailBerita'])->name('home.detailBerita');
 Route::get('/page/{id}', [HomeController::class, 'detailPage'])->name('home.detailPage');
 Route::get('/berita', [HomeController::class, 'semuaBerita'])->name('home.berita');
+Route::get('/search', [HomeController::class, 'search'])->name('search');
 
 Route::get('/login', [AuthController::class, 'index'])->name('auth.index')->middleware('guest');
 Route::post('/login', [AuthController::class, 'verify'])->name('auth.verify');
