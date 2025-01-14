@@ -15,6 +15,9 @@
 
         {{-- link ajax  --}}
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+
+        {{-- link cdn fa fa --}}
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     </head>
     <body class="d-flex flex-column">
         <main class="flex-shrink-0">

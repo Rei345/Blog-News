@@ -5,10 +5,10 @@
     <div class="container px-5" id="card-container">
         <h2 class="fw-bolder fs-5 mb-4">Semua Berita</h2>
         <div class="row gx-5">
-            <div class="input-box mb-3">
+            <form class="input-box d-flex mb-3">
                 <input type="text" class="form-control" id="search" name="search" placeholder="Search..." />
-                <i class="fas fa-search"></i>
-            </div>
+                <button class="btn btn-primary fas fa-search"></button>
+            </form>
             @foreach ($berita as $row)
             <div class="col-lg-4 mb-5">
                 <div class="card h-100 shadow border-0">
