@@ -6,9 +6,17 @@
         <h2 class="fw-bolder fs-5 mb-4">Semua Berita</h2>
         
         <!-- Form Pencarian -->
-        <form class="input-box d-flex mb-3">
-            <input type="text" class="form-control" id="search" name="search" placeholder="Search..." />
-            <button type="button" class="btn btn-primary fas fa-search"></button>
+        <form class="input-box mb-3">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                <div class="search-container">
+                    <input type="text" class="form-control" id="search" name="search" placeholder="Search..." />
+                    {{-- <i class="fas fa-search search-icon"></i> --}}
+                </div>
+                </div>
+            </div>
+        </div>
         </form>
 
         <!-- Kontainer Hasil Pencarian -->
