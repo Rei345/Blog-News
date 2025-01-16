@@ -34,7 +34,7 @@ class HomeController extends Controller
                     <img class="card-img-top" src="' . route('storage', $row->gambar_berita) . '" alt="' . $row->judul_berita . '" />
                     <div class="card-body p-4">
                         <div class="badge bg-primary bg-gradient rounded-pill mb-2">' . $row->kategori->nama_kategori . '</div>
-                        <a class="text-decoration-none link-dark stretched-link" href="' . route('home.detailBerita', $row->id_berita) . '">
+                        <a class="text-decoration-none link-dark stretched-link" href="' . route('home.detailBerita', $row->slug) . '">
                             <div class="h5 card-title mb-3">' . $row->judul_berita . '</div>
                         </a>
                         <p class="card-text mb-0">' . substr($row->isi_berita, 0, 200) . '</p>
@@ -75,11 +75,19 @@ class HomeController extends Controller
         return view ('frontend.content.detailPage', compact('menu', 'page'));
     }
 
-    public function semuaBerita()
+    public function semuaBerita(Request $request)
     {
         $menu = $this->getMenu();
-        $berita = Berita::with('kategori')->latest()->get();
-        return view ('frontend.content.semuaBerita', compact('menu', 'berita'));
+
+        //Query pencarian berita
+        $query = $request->input('search');
+        $berita = Berita::with('kategori')
+        ->when($query, function($q) use ($query){
+            $q->where('judul_berita', 'LIKE', "%{$query}%");
+        })
+        ->latest()
+        ->get();
+        return view ('frontend.content.semuaBerita', compact('menu', 'berita', 'query'));
     }
 
     private function getMenu()

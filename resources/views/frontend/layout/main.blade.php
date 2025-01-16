@@ -58,6 +58,32 @@
                     </div>
                 </div>
             </nav>
+
+            <!-- Search and Categories Section -->
+            <div class="container py-2">
+                <div class="row align-items-center">
+                    <!-- Kolom Pencarian -->
+                    <div class="col-md-6 mb-2">
+                        <form action="{{ route('home.berita') }}" method="GET">
+                            <div class="input-group">
+                                <input type="text" class="form-control" name="search" placeholder="Cari berita..." value="{{ request('search') }}">
+                                <button class="btn btn-outline-primary" type="submit">Cari</button>
+                            </div>
+                        </form>
+                    </div>
+                    <!-- Kategori -->
+                    <div class="col-md-6">
+                        <div class="d-flex flex-wrap justify-content-center">
+                            @foreach (['Teknologi', 'Lifestyle', 'Entrepreneur', 'Olahraga', 'Kesehatan'] as $kategori)
+                                <a href="{{ route('home.berita', ['kategori' => $kategori]) }}" class="btn btn-outline-secondary m-1">
+                                    {{ $kategori }}
+                                </a>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Page Content-->
             @yield('content')
         </main>
