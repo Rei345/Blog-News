@@ -9,7 +9,7 @@
                 @foreach ($mostViews as $mv)                    
                     <div class="mb-4">
                         <div class="small text-muted">{{ $mv->kategori->nama_kategori }}</div>
-                        <a class="link-dark" href="{{ route('home.detailBerita', $mv->id_berita) }}"><h3>{{ $mv->judul_berita }}</h3></a>
+                        <a class="link-dark" href="{{ route('home.detailBerita', $mv->slug) }}"><h3>{{ $mv->judul_berita }}</h3></a>
                     </div>
                 @endforeach
                 
@@ -56,7 +56,7 @@
                     <img class="card-img-top" src="{{ route('storage', $row->gambar_berita) }}" alt="{{ $row->judul_berita }}" />
                     <div class="card-body p-4">
                         <div class="badge bg-primary bg-gradient rounded-pill mb-2">{{ $row->kategori->nama_kategori }}</div>
-                        <a class="text-decoration-none link-dark stretched-link" href="{{ route('home.detailBerita', $row->id_berita) }}"><div class="h5 card-title mb-3">{{ $row->judul_berita }}</div></a>
+                        <a class="text-decoration-none link-dark stretched-link" href="{{ route('home.detailBerita', $row->slug) }}"><div class="h5 card-title mb-3">{{ $row->judul_berita }}</div></a>
                         <p class="card-text mb-0">{!! substr($row->isi_berita, 0, 200) !!}</p>
                     </div>
                     <div class="card-footer p-4 pt-0 bg-transparent border-top-0">

@@ -20,7 +20,7 @@
                         <!-- Post title-->
                         <h1 class="fw-bolder mb-1">{{ $berita->judul_berita }}</h1>
                         <!-- Post meta content-->
-                        <div class="text-muted fst-italic mb-2">{{ $berita->created_at }}</div>
+                        <div class="text-muted fst-italic mb-2">{{ $berita->created_at->format('d M Y') }}</div>
                     </header>
                     <!-- Preview image figure-->
                     <figure class="mb-4"><img class="img-fluid rounded" src="{{ route('storage', $berita->gambar_berita) }}" alt="{{ $berita->judul_berita }}" /></figure>

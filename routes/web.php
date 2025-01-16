@@ -28,7 +28,7 @@ use App\Http\Controllers\DashboardController;
 // });
 
 Route::get('/', [HomeController::class, 'index'])->name('home.index');
-Route::get('/berita/{id}', [HomeController::class, 'detailBerita'])->name('home.detailBerita');
+Route::get('/berita/{slug}', [HomeController::class, 'detailBerita'])->name('home.detailBerita');
 Route::get('/page/{id}', [HomeController::class, 'detailPage'])->name('home.detailPage');
 Route::get('/berita', [HomeController::class, 'semuaBerita'])->name('home.berita');
 Route::get('/search', [HomeController::class, 'search'])->name('search');

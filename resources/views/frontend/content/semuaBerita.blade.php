@@ -27,7 +27,7 @@
                         <img class="card-img-top" src="{{ route('storage', $row->gambar_berita) }}" alt="{{ $row->judul_berita }}" />
                         <div class="card-body p-4">
                             <div class="badge bg-primary bg-gradient rounded-pill mb-2">{{ $row->kategori->nama_kategori }}</div>
-                            <a class="text-decoration-none link-dark stretched-link" href="{{ route('home.detailBerita', $row->id_berita) }}">
+                            <a class="text-decoration-none link-dark stretched-link" href="{{ route('home.detailBerita', $row->slug) }}">
                                 <div class="h5 card-title mb-3">{{ $row->judul_berita }}</div>
                             </a>
                             <p class="card-text mb-0">{!! Str::limit($row->isi_berita, 200) !!}</p>
