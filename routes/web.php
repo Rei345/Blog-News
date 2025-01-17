@@ -32,6 +32,7 @@ Route::get('/berita/{slug}', [HomeController::class, 'detailBerita'])->name('hom
 Route::get('/page/{id}', [HomeController::class, 'detailPage'])->name('home.detailPage');
 Route::get('/berita', [HomeController::class, 'semuaBerita'])->name('home.berita');
 Route::get('/search', [HomeController::class, 'search'])->name('search');
+Route::get('/berita/kategori/{id}', [HomeController::class, 'kategoriBerita'])->name('home.kategoriBerita');
 
 Route::get('/login', [AuthController::class, 'index'])->name('auth.index')->middleware('guest');
 Route::post('/login', [AuthController::class, 'verify'])->name('auth.verify');

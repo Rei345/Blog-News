@@ -74,10 +74,12 @@
                     <!-- Kategori -->
                     <div class="col-md-6">
                         <div class="d-flex flex-wrap justify-content-center">
-                            @foreach (['Teknologi', 'Lifestyle', 'Entrepreneur', 'Olahraga', 'Kesehatan'] as $kategori)
-                                <a href="{{ route('home.berita', ['kategori' => $kategori]) }}" class="btn btn-outline-secondary m-1">
-                                    {{ $kategori }}
+                            @foreach($kategori as $kat)
+                            <li class="btn btn-outline-secondary m-1">
+                                <a class="nav-link" href="{{ route('home.kategoriBerita', ['id' => $kat->id_kategori]) }}">
+                                    {{ $kat->nama_kategori }}
                                 </a>
+                            </li>                            
                             @endforeach
                         </div>
                     </div>

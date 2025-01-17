@@ -3,7 +3,7 @@
 <!-- Blog preview section-->
 <section class="py-5">
     <div class="container px-5">
-        <h1 class="fw-bolder fs-5 mb-4">Semua Berita</h1>
+        <h1 class="fw-bolder fs-5 mb-4">Semua Berita {{ $kategoriTerpilih }}</h1>
         
         @if (!empty($query))
             <p>Hasil pencarian untuk: <strong>{{ $query }}</strong></p>

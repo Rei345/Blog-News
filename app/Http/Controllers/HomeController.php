@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Menu;
 use App\Models\Page;
 use App\Models\Berita;
+use App\Models\Kategori;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -14,9 +15,10 @@ class HomeController extends Controller
     public function index()
     {
         $menu = $this->getMenu();
-        $berita = Berita::with('kategori')->latest()->get()->take(6);
-        $mostViews = Berita::with('kategori')->orderByDesc('total_views')->get()->take(3);
-        return view ('frontend.content.home', compact('menu', 'berita', 'mostViews'));
+        $berita = Berita::with('kategori')->latest()->take(6)->get()->unique('id_kategori');
+        $mostViews = Berita::with('kategori')->orderByDesc('total_views')->take(3)->get();
+        $kategori = Kategori::all();
+        return view ('frontend.content.home', compact('menu', 'berita', 'mostViews', 'kategori'));
     }
 
     public function search(Request $request)
@@ -56,16 +58,47 @@ class HomeController extends Controller
         return response()->json(['html' => $html]);
     }
 
+    public function kategoriBerita($id)
+    {
+        $menu = $this->getMenu();
+    
+        // Cari kategori berdasarkan ID
+        $kategori = Kategori::find($id);
+
+        // Jika kategori tidak ditemukan, arahkan ke halaman semua berita
+        if (!$kategori) {
+            return redirect()->route('home.berita')->with('error', 'Kategori tidak ditemukan');
+        }
+
+        // Ambil berita berdasarkan kategori
+        $berita = Berita::with('kategori')
+            ->where('id_kategori', $id)
+            ->latest()
+            ->get();
+
+        // Semua kategori untuk sidebar atau navbar
+        $semuaKategori = Kategori::all();
+
+        return view('frontend.content.semuaBerita', [
+            'menu' => $menu,
+            'berita' => $berita,
+            'kategori' => $semuaKategori,
+            'kategoriTerpilih' => $kategori->nama_kategori,
+            'query' => '' // Kosong karena ini filter kategori, bukan pencarian
+        ]);
+    }
+
     public function detailBerita($slug)
     {
         //Halaman detail berita
         $menu = $this->getMenu();
-        $berita = Berita::where('slug', $slug)->firstOrFail();
+        $berita = Berita::with('kategori')->where('slug', $slug)->firstOrFail();
+        $kategori = Kategori::all();
         
         //Update total views
         $berita->total_views = $berita->total_views + 1;
         $berita->save();
-        return view ('frontend.content.detailBerita', compact('menu', 'berita'));
+        return view ('frontend.content.detailBerita', compact('menu', 'berita', 'kategori'));
     }
 
     public function detailPage($id)
@@ -79,15 +112,27 @@ class HomeController extends Controller
     {
         $menu = $this->getMenu();
 
-        //Query pencarian berita
+        // Ambil parameter kategori dari request
+        $kategoriId = $request->input('kategori');
+
+        // Query pencarian berita
         $query = $request->input('search');
         $berita = Berita::with('kategori')
-        ->when($query, function($q) use ($query){
-            $q->where('judul_berita', 'LIKE', "%{$query}%");
-        })
-        ->latest()
-        ->get();
-        return view ('frontend.content.semuaBerita', compact('menu', 'berita', 'query'));
+            ->when($kategoriId, function ($q) use ($kategoriId) {
+                $q->where('id_kategori', $kategoriId);
+            })            
+            ->when($query, function ($q) use ($query) {
+                $q->where('judul_berita', 'LIKE', "%{$query}%");
+            })
+            ->latest()
+            ->get();
+
+        $kategori = Kategori::all(); // Untuk menampilkan kategori di navbar atau sidebar
+        $kategoriTerpilih = $kategoriId && Kategori::find($kategoriId)
+            ? Kategori::find($kategoriId)->nama_kategori
+            : 'Kategori';
+
+        return view('frontend.content.semuaBerita', compact('menu', 'berita', 'query', 'kategori', 'kategoriTerpilih'));
     }
 
     private function getMenu()
