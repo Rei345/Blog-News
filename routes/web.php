@@ -41,6 +41,7 @@ Route::group(['middleware' => 'auth:user'], function(){
     Route::prefix('admin')->group(function(){
         Route::get('/', [DashboardController::class, 'index'])->name('dashboard.index');
         Route::get('/profile', [DashboardController::class, 'profile'])->name('dashboard.profile');
+        Route::post('/profile/update-picture', [DashboardController::class, 'updateProfilePicture'])->name('dashboard.updateProfilePicture');
         Route::get('/reset-password', [DashboardController::class, 'resetPassword'])->name('dashboard.resetPassword');
         Route::post('/reset-password', [DashboardController::class, 'prosesResetPassword'])->name('dashboard.prosesResetPassword');
 

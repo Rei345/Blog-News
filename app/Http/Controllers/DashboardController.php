@@ -27,6 +27,35 @@ class DashboardController extends Controller
         return view('backend.content.profile', compact('user'));
     }
 
+    public function updateProfilePicture(Request $request)
+    {
+        $request->validate([
+            'profile_picture' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        $id = Auth::guard('user')->user()->id;
+        $user = User::findOrFail($id);
+
+        if ($request->hasFile('profile_picture')) {
+            // Hapus foto lama jika ada
+            if ($user->profile_picture && file_exists(storage_path('app/public/' . $user->profile_picture))) {
+                unlink(storage_path('app/public/' . $user->profile_picture));
+            }
+
+            // Upload foto baru
+            $file = $request->file('profile_picture');
+            $path = $file->store('profile_pictures', 'public');
+
+            // Simpan path ke database
+            $user->profile_picture = $path;
+            $user->save();
+
+            return redirect()->route('dashboard.profile')->with('pesan', ['success', 'Foto profil berhasil diupdate!']);
+        }
+
+        return redirect()->route('dashboard.profile')->with('pesan', ['danger', 'Gagal mengupload foto profil.']);
+    }
+
     public function resetPassword()
     {
         return view('backend.content.resetPassword');
