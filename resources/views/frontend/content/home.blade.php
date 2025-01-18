@@ -64,7 +64,7 @@
                             <div class="d-flex align-items-center">
                                 <div class="small">
                                     <div class="fw-bold">{{ $row->user->name }}</div>
-                                    <div class="text-muted">{{ $row->created_at }}</div>
+                                    <div class="text-muted">{{ $row->created_at->timezone('Asia/Jakarta')->format('d M Y, H:i') }} WIB</div>
                                 </div>
                             </div>
                         </div>
