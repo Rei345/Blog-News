@@ -2,7 +2,7 @@
 @section('content')
 <!-- Blog preview section-->
 <section class="py-3">
-    <div class="container px-5">
+    <div class="container px-4">
         <h1 class="fw-bolder fs-5 mb-4">Semua Berita {{ $kategoriTerpilih }}</h1>
         
         @if (!empty($query))
@@ -20,7 +20,7 @@
                             <a class="text-decoration-none link-dark stretched-link" href="{{ route('home.detailBerita', $row->slug) }}">
                                 <div class="h5 card-title mb-3">{{ $row->judul_berita }}</div>
                             </a>
-                            <p class="card-text mb-0">{{ Str::limit(strip_tags($row->isi_berita), 200) }}</p>
+                            <p class="card-text mb-0">{!! substr($row->isi_berita, 0, 200) !!}</p>
                         </div>
                         <div class="card-footer p-4 pt-0 bg-transparent border-top-0">
                             <div class="d-flex align-items-end justify-content-between">

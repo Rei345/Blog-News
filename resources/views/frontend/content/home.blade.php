@@ -1,7 +1,7 @@
 @extends('frontend.layout.main')
 @section('content')
-<section class="py-5 bg-light">
-    <div class="container px-5">
+<section class="py-4 bg-light">
+    <div class="container px-4">
         <div class="row gx-5">
             <div class="col-xl-8">
                 <h2 class="fw-bolder fs-5 mb-4">Most Views</h2>
@@ -27,13 +27,13 @@
                             <div class="text-center">
                                 <div class="h6 fw-bolder">Contact</div>
                                 <p class="text-muted mb-4">
-                                    For press inquiries, email us at
+                                    For press inquiries, email me at
                                     <br />
                                     <a href="#!">reinhardsitompul03@gmail.com</a>
                                 </p>
-                                <div class="h6 fw-bolder">Follow us</div>
-                                <a class="fs-5 px-2 link-dark" href="#!"><i class="bi-twitter"></i></a>
-                                <a class="fs-5 px-2 link-dark" href="#!"><i class="bi-facebook"></i></a>
+                                <div class="h6 fw-bolder">Follow me</div>
+                                <a class="fs-5 px-2 link-dark" href="#!"><i class="bi-instagram"></i></a>
+                                <a class="fs-5 px-2 link-dark" href="#!"><i class="bi-github"></i></a>
                                 <a class="fs-5 px-2 link-dark" href="#!"><i class="bi-linkedin"></i></a>
                                 <a class="fs-5 px-2 link-dark" href="#!"><i class="bi-youtube"></i></a>
                             </div>
@@ -46,7 +46,7 @@
 </section>
 <!-- Blog preview section-->
 <section class="py-5">
-    <div class="container px-5">
+    <div class="container px-4">
         <h2 class="fw-bolder fs-5 mb-4">Berita Terbaru</h2>
         <div class="row gx-5">
 

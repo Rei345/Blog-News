@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
         <meta name="description" content="" />
         <meta name="author" content="" />
-        <title>Modern Business - Start Bootstrap Template</title>
+        <title>Reinhard News</title>
         <!-- Favicon-->
         <link rel="icon" type="image/x-icon" href="{{ asset('assets-fe/assets/favicon.ico') }}" />
         <!-- Bootstrap icons-->
@@ -18,6 +18,23 @@
 
         {{-- link cdn fa fa --}}
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
+        <style>
+            .kategori-wrapper {
+                overflow-x: auto;
+                white-space: nowrap;
+                -webkit-overflow-scrolling: touch;
+            }
+            .kategori-list {
+                list-style-type: none;
+                padding: 0;
+                margin: 0;
+            }
+            .kategori-list li {
+                display: inline-block;
+            }
+        </style>
+            
     </head>
     <body class="d-flex flex-column">
         <main class="flex-shrink-0">
@@ -72,15 +89,17 @@
                         </form>
                     </div>
                     <!-- Kategori -->
-                    <div class="col-md-6">
-                        <div class="d-flex flex-wrap justify-content-center">
-                            @foreach($kategori as $kat)
-                            <li class="btn btn-outline-secondary m-1">
-                                <a class="nav-link" href="{{ route('home.kategoriBerita', ['id' => $kat->id_kategori]) }}">
-                                    {{ $kat->nama_kategori }}
-                                </a>
-                            </li>                            
-                            @endforeach
+                    <div class="col-md-6 mb-2">
+                        <div class="kategori-wrapper">
+                            <ul class="kategori-list d-flex">
+                                @foreach($kategori as $kat)
+                                <li class="btn btn-outline-secondary m-1">
+                                    <a class="nav-link" href="{{ route('home.kategoriBerita', ['id' => $kat->id_kategori]) }}">
+                                        {{ $kat->nama_kategori }}
+                                    </a>
+                                </li>                            
+                                @endforeach
+                            </ul>
                         </div>
                     </div>
                 </div>
