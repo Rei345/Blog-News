@@ -26,6 +26,7 @@
                                 <th>Nama Berita</th>
                                 <th>Judul Berita</th>
                                 <th>Kategori</th>
+                                <th>Penulis</th>
                                 <th>Aksi</th>
                             </tr>
                         </thead>
@@ -39,6 +40,7 @@
                                     <td><img src="{{ route('storage', $row->gambar_berita) }}" width="50px" height="50px" alt=""></td>
                                     <td>{{ $row->judul_berita }}</td>
                                     <td>{{ $row->kategori->nama_kategori }}</td>
+                                    <td>{{ $row->user->name }}</td> 
                                     <td>
                                         <a href="{{ route('berita.ubah', $row->id_berita) }}" class="btn btn-sm btn-warning"><i class="fa fa-edit"></i> Ubah</a>
                                         <a href="{{ route('berita.hapus', $row->id_berita) }}" onclick="return confirm('Anda Yakin?')" class="hapus btn btn-sm btn-danger"><i class="fa fa-trash"></i> Hapus</a>

@@ -10,7 +10,7 @@ class BeritaController extends Controller
 {
     public function index()
     {
-        $berita = Berita::with('kategori')->get();
+        $berita = Berita::with(['kategori', 'user'])->get();
         return view ('backend.content.berita.list', compact('berita'));
     }
 
@@ -37,6 +37,7 @@ class BeritaController extends Controller
         $berita->isi_berita = $request->isi_berita;
         $berita->gambar_berita = $gambar_berita;
         $berita->id_kategori = $request->id_kategori;
+        $berita->id_user = auth()->id(); // Menyimpan ID pengguna yang sedang login
 
         try {
             $berita->save();
@@ -65,6 +66,7 @@ class BeritaController extends Controller
         $berita->judul_berita = $request->judul_berita;
         $berita->isi_berita = $request->isi_berita;
         $berita->id_kategori = $request->id_kategori;
+        $berita->id_user = auth()->user()->id;
 
         if ($request->hasFile('gambar_berita')) {
             $request->file('gambar_berita')->store('public');

@@ -29,7 +29,7 @@
                                 <p class="text-muted mb-4">
                                     For press inquiries, email us at
                                     <br />
-                                    <a href="#!">press@domain.com</a>
+                                    <a href="#!">reinhardsitompul03@gmail.com</a>
                                 </p>
                                 <div class="h6 fw-bolder">Follow us</div>
                                 <a class="fs-5 px-2 link-dark" href="#!"><i class="bi-twitter"></i></a>
@@ -63,7 +63,7 @@
                         <div class="d-flex align-items-end justify-content-between">
                             <div class="d-flex align-items-center">
                                 <div class="small">
-                                    <div class="fw-bold">Admin</div>
+                                    <div class="fw-bold">{{ $row->user->name }}</div>
                                     <div class="text-muted">{{ $row->created_at }}</div>
                                 </div>
                             </div>

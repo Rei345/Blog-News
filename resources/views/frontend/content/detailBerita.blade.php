@@ -5,9 +5,9 @@
         <div class="row gx-5">
             <div class="col-lg-3">
                 <div class="d-flex align-items-center mt-lg-5 mb-4">
-                    <img class="img-fluid rounded-circle" src="https://dummyimage.com/50x50/ced4da/6c757d.jpg" alt="..." />
+                    <img class="img-fluid rounded-circle" src="{{ $berita->user->profile_picture }}" alt="..." />
                     <div class="ms-3">
-                        <div class="fw-bold">Admin</div>
+                        <div class="fw-bold">{{ $berita->user->name }}</div>
                         <div class="text-muted">{{ $berita->kategori->nama_kategori }}</div>
                     </div>
                 </div>

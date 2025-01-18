@@ -46,4 +46,9 @@ class User extends Authenticatable
     protected $table = "users";
 
     protected $primaryKey = "id";
+
+    public function berita()
+    {
+        return $this->hasMany(Berita::class, 'id_user');
+    }
 }

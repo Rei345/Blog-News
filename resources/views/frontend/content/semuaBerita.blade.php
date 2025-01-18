@@ -1,7 +1,7 @@
 @extends('frontend.layout.main')
 @section('content')
 <!-- Blog preview section-->
-<section class="py-5">
+<section class="py-3">
     <div class="container px-5">
         <h1 class="fw-bolder fs-5 mb-4">Semua Berita {{ $kategoriTerpilih }}</h1>
         
@@ -26,7 +26,7 @@
                             <div class="d-flex align-items-end justify-content-between">
                                 <div class="d-flex align-items-center">
                                     <div class="small">
-                                        <div class="fw-bold">Admin</div>
+                                        <div class="fw-bold">{{ $row->user->name }}</div>
                                         <div class="text-muted">{{ $row->created_at->format('d M Y') }}</div>
                                     </div>
                                 </div>

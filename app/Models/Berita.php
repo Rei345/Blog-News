@@ -12,7 +12,7 @@ class Berita extends Model
 
     protected $primaryKey = "id_berita";
 
-    protected $fillable = ["judul_berita", "isi_berita", "gambar_berita", "id_kategori", "total_views", "slug"];
+    protected $fillable = ["judul_berita", "isi_berita", "gambar_berita", "id_kategori", "total_views", "slug", "id_user"];
 
     public function kategori()
     {
@@ -24,5 +24,10 @@ class Berita extends Model
     {
         $this->attributes['judul_berita'] = $value;
         $this->attributes['slug'] = Str::slug($value, '-');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'id_user');
     }
 }

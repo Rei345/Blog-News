@@ -92,7 +92,7 @@ class HomeController extends Controller
     {
         //Halaman detail berita
         $menu = $this->getMenu();
-        $berita = Berita::with('kategori')->where('slug', $slug)->firstOrFail();
+        $berita = Berita::with(['kategori', 'user'])->where('slug', $slug)->firstOrFail();
         $kategori = Kategori::all();
         
         //Update total views
