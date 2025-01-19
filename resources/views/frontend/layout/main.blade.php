@@ -77,7 +77,7 @@
             </nav>
 
             <!-- Search and Categories Section -->
-            <div class="container py-2">
+            <div class="container py-2 px-3">
                 <div class="row align-items-center">
                     <!-- Kolom Pencarian -->
                     <div class="col-md-6 mb-2">

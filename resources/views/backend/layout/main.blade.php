@@ -75,11 +75,21 @@
                     <span>Kategori</span></a>
             </li>
 
-            <li class="nav-item">
-                <a class="nav-link" href="{{ route('user.index') }}">
-                    <i class="fas fa-fw fa-users"></i>
-                    <span>Data Users</span></a>
-            </li>
+            @if(auth()->check() && auth()->user()->role === 'user')
+                <li class="nav-item">
+                    <button class="btn btn-secondary nav-link" disabled>
+                        <i class="fas fa-fw fa-lock"></i>
+                        <span>Data users unavailable</span>
+                    </button>
+                </li>
+            @else
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('user.index') }}">
+                        <i class="fas fa-fw fa-users"></i>
+                        <span>Data Users</span>
+                    </a>
+                </li>
+            @endif
             
             <li class="nav-item">
                 <a class="nav-link" href="{{ route('page.index') }}">

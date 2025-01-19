@@ -60,12 +60,14 @@ Route::group(['middleware' => 'auth:user'], function(){
         Route::post('/berita/prosesUbah', [BeritaController::class, 'prosesUbah'])->name('berita.prosesUbah');
         Route::get('/berita/hapus/{id}', [BeritaController::class, 'hapus'])->name('berita.hapus');
 
-        Route::get('/user', [UserController::class, 'index'])->name('user.index');
-        Route::get('/user/tambah', [UserController::class, 'tambah'])->name('user.tambah');
-        Route::post('/user/prosesTambah', [UserController::class, 'prosesTambah'])->name('user.prosesTambah');
-        Route::get('/user/ubah/{id}', [UserController::class, 'ubah'])->name('user.ubah');
-        Route::post('/user/prosesUbah', [UserController::class, 'prosesUbah'])->name('user.prosesUbah');
-        Route::get('/user/hapus/{id}', [UserController::class, 'hapus'])->name('user.hapus');
+        Route::middleware(['role:admin'])->group(function(){
+            Route::get('/user', [UserController::class, 'index'])->name('user.index');
+            Route::get('/user/tambah', [UserController::class, 'tambah'])->name('user.tambah');
+            Route::post('/user/prosesTambah', [UserController::class, 'prosesTambah'])->name('user.prosesTambah');
+            Route::get('/user/ubah/{id}', [UserController::class, 'ubah'])->name('user.ubah');
+            Route::post('/user/prosesUbah', [UserController::class, 'prosesUbah'])->name('user.prosesUbah');
+            Route::get('/user/hapus/{id}', [UserController::class, 'hapus'])->name('user.hapus');
+        });
 
         Route::get('/page', [PageController::class, 'index'])->name('page.index');
         Route::get('/page/tambah', [PageController::class, 'tambah'])->name('page.tambah');

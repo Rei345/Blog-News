@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('berita', function (Blueprint $table) {
-            $table->unsignedBigInteger('id_user')->change();
-        });        
+        Schema::table('users', function (Blueprint $table) {
+            $table->string('role')->default('user');
+        });
     }
 
     /**
@@ -21,9 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('berita', function (Blueprint $table) {
-            $table->dropForeign(['id_user']);
-            $table->dropColumn('id_user');
+        Schema::table('users', function (Blueprint $table) {
+            //
         });
     }
 };
