@@ -49,8 +49,13 @@ class BeritaController extends Controller
 
     public function ubah($id)
     {
-        $berita = Berita::findOrFail($id);
+        $berita = Berita::with('user')->findOrFail($id);
         $kategori = Kategori::all();
+        // Periksa hak akses: hanya admin atau pemilik berita yang dapat mengubah
+        if (auth()->user()->role !== 'admin' && $berita->id_user !== auth()->user()->id) {
+            $userName = $berita->user ? $berita->user->name : 'tidak diketahui';
+            return redirect()->route('berita.index')->with('pesan', ['danger', "Anda tidak memiliki izin untuk mengubah berita milik {$userName}."]);
+        }
         return view ('backend.content.berita.formUbah', compact('berita', 'kategori'));
     }
 
@@ -62,12 +67,15 @@ class BeritaController extends Controller
             'id_kategori' => 'required'
         ]);
 
+        // Cari berita berdasarkan ID
         $berita = Berita::findOrFail($request->id_berita);
+
+        // Update data berita
         $berita->judul_berita = $request->judul_berita;
         $berita->isi_berita = $request->isi_berita;
         $berita->id_kategori = $request->id_kategori;
-        $berita->id_user = auth()->user()->id;
 
+        // Jika ada file gambar, proses upload
         if ($request->hasFile('gambar_berita')) {
             $request->file('gambar_berita')->store('public');
             $gambar_berita = $request->file('gambar_berita')->hashName();
@@ -76,21 +84,30 @@ class BeritaController extends Controller
 
         try {
             $berita->save();
-            return redirect()->route('berita.index')->with('pesan',['success', 'Berita Berhasil Diubah']);
+            return redirect()->route('berita.index')->with('pesan', ['success', 'Berita Berhasil Diubah']);
         } catch (\Exception $e) {
-            return redirect()->route('berita.index')->with('pesan',['danger', 'Berita Gagal Diubah']);
+            return redirect()->route('berita.index')->with('pesan', ['danger', 'Berita Gagal Diubah']);
         }
     }
 
     public function hapus($id)
     {
-        $berita = Berita::findOrFail($id);
+        $berita = Berita::with('user')->findOrFail($id);
+
+        // Periksa hak akses: hanya admin atau pemilik berita yang dapat menghapus
+        if (auth()->user()->role !== 'admin' && $berita->id_user !== auth()->user()->id) {
+            $userName = $berita->user ? $berita->user->name : 'tidak diketahui';
+            return redirect()->route('berita.index')->with('pesan', [
+                'danger', 
+                "Anda tidak memiliki izin untuk menghapus berita milik {$userName}."
+            ]);
+        }
 
         try {
             $berita->delete();
-            return redirect()->route('berita.index')->with('pesan',['success', 'Berita Berhasil Dihapus']);
+            return redirect()->route('berita.index')->with('pesan', ['success', 'Berita Berhasil Dihapus']);
         } catch (\Exception $e) {
-            return redirect()->route('berita.index')->with('pesan',['danger', 'Berita Gagal Dihapus']);
+            return redirect()->route('berita.index')->with('pesan', ['danger', 'Berita Gagal Dihapus']);
         }
     }
 }

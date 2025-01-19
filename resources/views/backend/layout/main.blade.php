@@ -49,30 +49,31 @@
             <hr class="sidebar-divider my-0">
 
             <!-- Nav Item - Dashboard -->
-            <li class="nav-item active">
+            <li class="nav-item {{ Request::routeIs('dashboard.index') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ route('dashboard.index') }}">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
-                    <span>Dashboard</span></a>
+                    <span>Dashboard</span>
+                </a>
             </li>
 
             <!-- Divider -->
             <hr class="sidebar-divider">
 
             <!-- Heading -->
-            <div class="sidebar-heading">
-                Master
-            </div>
+            <div class="sidebar-heading">Master</div>
 
-            <li class="nav-item">
+            <li class="nav-item {{ Request::routeIs('berita.index') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ route('berita.index') }}">
                     <i class="fas fa-fw fa-newspaper"></i>
-                    <span>Data Berita</span></a>
+                    <span>Data Berita</span>
+                </a>
             </li>
             
-            <li class="nav-item">
+            <li class="nav-item {{ Request::routeIs('kategori.index') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ route('kategori.index') }}">
                     <i class="fas fa-fw fa-list"></i>
-                    <span>Kategori</span></a>
+                    <span>Kategori</span>
+                </a>
             </li>
 
             @if(auth()->check() && auth()->user()->role === 'user')
@@ -83,7 +84,7 @@
                     </button>
                 </li>
             @else
-                <li class="nav-item">
+                <li class="nav-item {{ Request::routeIs('user.index') ? 'active' : '' }}">
                     <a class="nav-link" href="{{ route('user.index') }}">
                         <i class="fas fa-fw fa-users"></i>
                         <span>Data Users</span>
@@ -91,16 +92,18 @@
                 </li>
             @endif
             
-            <li class="nav-item">
+            <li class="nav-item {{ Request::routeIs('page.index') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ route('page.index') }}">
                     <i class="fas fa-fw fa-paperclip"></i>
-                    <span>Data Page</span></a>
+                    <span>Data Page</span>
+                </a>
             </li>
             
-            <li class="nav-item">
+            <li class="nav-item {{ Request::routeIs('menu.index') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ route('menu.index') }}">
                     <i class="fas fa-fw fa-bars"></i>
-                    <span>Data Menu</span></a>
+                    <span>Data Menu</span>
+                </a>
             </li>
 
         </ul>
