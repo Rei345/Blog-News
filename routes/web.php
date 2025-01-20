@@ -36,6 +36,14 @@ Route::get('/berita/kategori/{id}', [HomeController::class, 'kategoriBerita'])->
 
 Route::get('/login', [AuthController::class, 'index'])->name('auth.index')->middleware('guest');
 Route::post('/login', [AuthController::class, 'verify'])->name('auth.verify');
+Route::get('/register', [AuthController::class, 'registerForm'])->name('auth.registerForm')->middleware('guest');
+Route::post('/register', [AuthController::class, 'register'])->name('auth.register')->middleware('guest');
+
+// Routes untuk role viewer (akses berita saja)
+Route::middleware(['auth', 'role:viewer'])->group(function () {
+    Route::post('/berita/{slug}/comment', [HomeController::class, 'postComment'])->name('home.postComment');
+    Route::get('/logout', [AuthController::class, 'logout'])->name('auth.logout');
+});
 
 Route::group(['middleware' => 'auth:user'], function(){
     Route::prefix('admin')->group(function(){

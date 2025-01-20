@@ -21,7 +21,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'profile_picture'
+        'profile_picture',
+        'role'
     ];
 
     /**
@@ -50,5 +51,16 @@ class User extends Authenticatable
     public function berita()
     {
         return $this->hasMany(Berita::class, 'id_user');
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($user) {
+            if (!in_array($user->role, ['admin', 'user', 'viewer'])) {
+                throw new \Exception('Invalid role assigned to user.');
+            }
+        });
     }
 }

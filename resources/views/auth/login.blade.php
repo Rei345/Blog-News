@@ -40,8 +40,8 @@
                                 </div>
 
                                 @if (session()->has('pesan'))
-                                    <div class="alert alert-danger">
-                                        {{ session()->get('pesan') }}
+                                    <div class="alert alert-{{ session()->get('pesan')[0] }}">
+                                        {{ session()->get('pesan')[1] }}
                                     </div>
                                 @endif
 
@@ -50,11 +50,11 @@
                                     <div class="form-group">
                                         <input type="email" name="email" class="form-control form-control-user"
                                             id="exampleInputEmail" aria-describedby="emailHelp"
-                                            placeholder="Enter Email Address...">
+                                            placeholder="Enter Email Address..." required>
                                     </div>
                                     <div class="form-group">
                                         <input type="password"  name="password" class="form-control form-control-user"
-                                            id="exampleInputPassword" placeholder="Password">
+                                            id="exampleInputPassword" placeholder="Password" required>
                                     </div>
                                     <div class="form-group">
                                         <div class="custom-control custom-checkbox small">
@@ -77,7 +77,7 @@
                                     <a class="small" href="forgot-password.html">Forgot Password?</a>
                                 </div>
                                 <div class="text-center">
-                                    <a class="small" href="register.html">Create an Account!</a>
+                                    <a class="small" href="{{ route('auth.registerForm') }}">Create an Account!</a>
                                 </div>
                             </div>
                     </div>

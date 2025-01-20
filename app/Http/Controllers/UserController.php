@@ -22,23 +22,20 @@ class UserController extends Controller
 
     public function prosesTambah(Request $request)
     {
-        $this->validate($request, [
-            'name' =>'required',
-            'email' =>'required'
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
         ]);
 
-        $user = new User();
-        $user->name = $request->name;
-        $user->email = $request->email;
-        $user->password = bcrypt('12345678');
-        $user->role = 'user';
+        // Membuat pengguna dengan role user
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => bcrypt('12345678'), // Password default
+            'role' => 'user',
+        ]);
 
-        try {
-            $user->save();
-            return redirect(route('user.index'))->with('pesan', ['success', 'Berhasil tambah user']);
-        } catch (\Exception $e){
-            return redirect(route('user.index'))->with('pesan', ['danger', 'Gagal tambah user']);
-        }
+        return redirect()->route('user.index')->with('pesan', ['success', 'Berhasil tambah user']);
     }
 
     public function ubah($id)

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Menu;
 use App\Models\Page;
 use App\Models\Berita;
+use App\Models\Comment;
 use App\Models\Kategori;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -94,11 +95,32 @@ class HomeController extends Controller
         $menu = $this->getMenu();
         $berita = Berita::with(['kategori', 'user'])->where('slug', $slug)->firstOrFail();
         $kategori = Kategori::all();
+
+        // Untuk post comment
+        $comments = Comment::where('id_berita', $berita->id)->with('user')->latest()->get();
         
         //Update total views
         $berita->total_views = $berita->total_views + 1;
         $berita->save();
-        return view ('frontend.content.detailBerita', compact('menu', 'berita', 'kategori'));
+        return view ('frontend.content.detailBerita', compact('menu', 'berita', 'kategori', 'comments'));
+    }
+
+    public function postComment(Request $request, $slug)
+    {
+        $request->validate([
+            'comment' => 'required|string|max:1000',
+        ]);
+    
+        $berita = Berita::where('slug', $slug)->firstOrFail();
+    
+        Comment::create([
+            'id_user' => auth()->id(),
+            'id_berita' => $berita->id,
+            'comment' => $request->comment,
+        ]);
+    
+        return redirect()->route('home.detailBerita', ['slug' => $slug])
+            ->with('success', 'Comment added successfully!');
     }
 
     public function detailPage($id)

@@ -19,9 +19,15 @@ class RedirectIfAuthenticated
     {
         $guards = empty($guards) ? [null] : $guards;
 
-        if (Auth::guard('user')->check())
-        {
-            return redirect(route('dashboard.index'));
+        if (Auth::guard('user')->check()) {
+            $user = Auth::guard('user')->user();
+    
+            // Redirect berdasarkan role
+            if ($user->role === 'admin') {
+                return redirect(route('dashboard.index'));
+            } elseif ($user->role === 'viewer') {
+                return redirect(route('home.index'));
+            }
         }
 
         return $next($request);
