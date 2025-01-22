@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Pengunjung;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -21,12 +22,24 @@ class AuthController extends Controller
             'password' => 'required',
         ]);
 
-        if (Auth::guard('user')->attempt(['email' => $request->email, 'password' => $request->password]))
-        {
-            return redirect()->intended('/admin');
-        } else {
-            return redirect(route('auth.index'))->with('pesan', ['danger', 'Kombinasi email dan password salah ']);
+        // Cek login di tabel users (untuk role admin dan user)
+        if (Auth::guard('user')->attempt(['email' => $request->email, 'password' => $request->password])) {
+            // Redirect ke halaman dashboard untuk role user atau admin
+            return redirect()->route('dashboard.index'); 
         }
+
+        // Jika tidak ditemukan di tabel users, cek di tabel pengunjung
+        $pengunjung = Pengunjung::where('email', $request->email)->first();
+
+        if ($pengunjung && Hash::check($request->password, $pengunjung->password)) {
+            // Jika ditemukan di tabel pengunjung dan password cocok
+            Auth::guard('pengunjung')->login($pengunjung); // Anda mungkin perlu membuat guard khusus untuk pengunjung
+            // Redirect ke halaman frontend jika login berhasil
+            return redirect()->route('home.index'); // Redirect ke homepage atau halaman yang sesuai untuk pengunjung
+        }
+
+        // Jika email dan password tidak valid
+        return redirect(route('auth.index'))->with('pesan', ['danger', 'Kombinasi email dan password salah']);
     }
 
     public function registerForm()
@@ -36,29 +49,40 @@ class AuthController extends Controller
 
     public function register(Request $request)
     {
+        // Validasi input
         $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
+            'nama_pengunjung' => 'required|string|max:255',
+            'email' => 'required|email|unique:pengunjung,email',
             'password' => 'required|string|min:6|confirmed',
         ]);
 
-        // Membuat pengguna dengan role viewer
-        $user = User::create([
-            'name' => $request->name,
+        // Membuat pengguna tanpa role khusus
+        $pengunjung = Pengunjung::create([
+            'nama_pengunjung' => $request->nama_pengunjung,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role' => 'viewer',
+            'foto_profile' => asset('assets/img/undraw_profile_1.svg'), // atau beri nilai default jika perlu
         ]);
 
+        // Redirect ke halaman login dengan pesan sukses
         return redirect()->route('auth.index')->with('pesan', ['success', 'Akun berhasil dibuat. Silahkan login!']);
     }
 
     public function logout()
     {
-        if (Auth::guard('user')->check())
-        {
+        // Periksa apakah pengguna login sebagai 'user'
+        if (Auth::guard('user')->check()) {
             Auth::guard('user')->logout();
+            return redirect()->route('auth.index')->with('pesan', ['success', 'Anda berhasil logout sebagai admin/user.']);
         }
-        return redirect(route('auth.index'));
+
+        // Periksa apakah pengguna login sebagai 'pengunjung'
+        if (Auth::guard('pengunjung')->check()) {
+            Auth::guard('pengunjung')->logout();
+            return redirect()->route('auth.index')->with('pesan', ['success', 'Anda berhasil logout sebagai pengunjung.']);
+        }
+
+        // Jika tidak ada yang login
+        return redirect()->route('auth.index')->with('pesan', ['warning', 'Tidak ada sesi login yang ditemukan.']);
     }
 }

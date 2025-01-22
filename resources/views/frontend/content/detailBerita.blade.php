@@ -52,40 +52,111 @@
                 </div>
                 
                 <!-- Comments section-->
-                @if (auth()->check())
-                    <section class="mt-4">
-                        <div class="card bg-light">
-                            <div class="card-body">
-                                <h5 class="card-title mb-4">Comment ({{ $comments->count() }})</h5>
-                                <!-- Single Comment -->
-                                @foreach ($comments as $comment)
-                                    <div class="d-flex mb-4">
-                                        <div class="flex-shrink-0">
-                                            <img class="rounded-circle" src="https://dummyimage.com/50x50/ced4da/6c757d.jpg" alt="Avatar" />
-                                        </div>
-                                        <div class="ms-3">
-                                            <div class="fw-bold">{{ $comment->user->name }}</div>
-                                            <p class="mb-0">{{ $comment->comment }}</p>
-                                        </div>
+                <section class="mt-4">
+                    <div class="card bg-light">
+                        <div class="card-body">
+                            <h5 class="card-title mb-4">Comment ({{ $comments->count() }})</h5>
+                            
+                            <!-- Single Comment -->
+                            @foreach ($comments as $comment)
+                                <div class="d-flex mb-4">
+                                    <div class="flex-shrink-0">
+                                        <img class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;" src="https://sguru.org/wp-content/uploads/2017/06/cool-anonymous-profile-pictures-VDWrWSva.jpg" alt="Avatar" />
                                     </div>
-                                @endforeach
-                                <!-- Comment Form -->
-                                <form class="d-flex align-items-start" action="{{ route('home.postComment', $berita->slug) }}" method="POST">
-                                    @csrf
-                                    <textarea class="form-control me-2" name="comment" rows="3" placeholder="Join the discussion and leave a comment!" style="flex-grow: 1;"></textarea>
-                                    <button type="submit" class="btn btn-primary d-flex align-items-center justify-content-center" style="height: 100%; width: 45px;">
+                                    <div class="ms-3">
+                                        <div class="fw-bold">{{ optional($comment->user)->name ?? 'Anonymous' }}</div>
+                                        <p class="mb-0">{{ $comment->comment }}</p>
+                                    </div>
+                                </div>
+                            @endforeach
+
+                            <div id="comments">
+                                <!-- Komentar akan ditambahkan di sini -->
+                            </div>                            
+
+                            <!-- Comment Form -->
+                            <form 
+                                id="commentForm"
+                                class="d-flex align-items-start" 
+                                action="{{ route('home.postComment', $berita->slug) }}" 
+                                method="POST"
+                                @if (!auth()->check()) onsubmit="event.preventDefault(); alert('You need to log in to post a comment!');" @endif
+                            >
+                                @csrf
+                                <textarea 
+                                    class="form-control me-2" 
+                                    name="comment" 
+                                    rows="3" 
+                                    placeholder="Join the discussion and leave a comment!" 
+                                    style="flex-grow: 1;"
+                                    {{ !auth()->check() ? 'disabled' : '' }}
+                                ></textarea>
+
+                                @if (auth()->check())
+                                    <button 
+                                        type="submit" 
+                                        class="btn btn-primary d-flex align-items-center justify-content-center" 
+                                        style="height: 100%; width: 45px;"
+                                    >
                                         <i class="fas fa-paper-plane"></i>
                                     </button>
-                                </form>
-                            </div>
+                                @else
+                                    <button 
+                                        type="submit" 
+                                        class="btn btn-primary d-flex align-items-center justify-content-center" 
+                                        style="height: 100%; width: 45px;"
+                                        disabled
+                                    >
+                                        <i class="fas fa-paper-plane"></i>
+                                    </button>
+                                @endif                             
+                            </form>
+
+                            <!-- Alert for non-logged-in users -->
+                            @if (!auth()->check())
+                                <p class="text-muted mt-2">
+                                    <strong>Note:</strong> Please <a href="{{ route('auth.index') }}">log in</a> to leave a comment.
+                                </p>
+                            @endif
                         </div>
-                    </section>                          
-                @else
-                    <p class="text-muted">Please <a href="{{ route('auth.index') }}">log in</a> to leave a comment.</p>
-                @endif
+                    </div>
+                </section>
             </div>
             </div>
         </div>
     </div>
 </section>
+<script>
+    $('#commentForm').on('submit', function(e) {
+        e.preventDefault(); // Mencegah reload halaman
+        const formData = $(this).serialize(); // Ambil data form
+
+        $.ajax({
+            url: "{{ route('home.postComment', $berita->slug) }}", // Endpoint komentar
+            type: 'POST',
+            data: formData,
+            success: function(response) {
+                if (response && response.user && response.comment) {
+                    $('#comments').append(`
+                    <div class="d-flex mb-4">
+                        <div class="flex-shrink-0">
+                            <img class="rounded-circle" src="${response.user.avatar}" alt="Avatar" />
+                        </div>
+                        <div class="ms-3">
+                            <div class="fw-bold">${response.user.name}</div>
+                            <p class="mb-0">${response.comment}</p>
+                        </div>
+                    </div>
+                    `);
+                    $('#commentForm')[0].reset(); // Reset form setelah submit
+                } else {
+                    alert('Error: Data tidak valid.');
+                }
+            },
+            error: function(xhr) {
+                alert('Terjadi kesalahan: ' + xhr.responseJSON.message);
+            }
+        });
+    });
+</script>
 @endsection

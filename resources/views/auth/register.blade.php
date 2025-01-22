@@ -47,7 +47,7 @@
                                     <form class="user" method="POST" action="{{ route('auth.register') }}">
                                         @csrf
                                         <div class="form-group">
-                                            <input type="text" id="name" name="name" class="form-control form-control-user"
+                                            <input type="text" id="nama_pengunjung" name="nama_pengunjung" class="form-control form-control-user"
                                                 aria-describedby="nameHelp"
                                                 placeholder="Enter Your Name..." required>
                                         </div>
@@ -62,7 +62,7 @@
                                         </div>
                                         <div class="form-group">
                                             <input type="password" id="password_confirmation" name="password_confirmation" class="form-control form-control-user"
-                                                placeholder="Password Confirmation" required>
+                                                placeholder="Confirm Your Password" required>
                                         </div>
                                         <div class="form-group">
                                             <div class="custom-control custom-checkbox small">

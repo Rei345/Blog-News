@@ -9,7 +9,7 @@ class Comment extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['id_user', 'id_berita', 'comment'];
+    protected $fillable = ['id_user', 'id_berita', 'comment', 'id_pengunjung'];
 
     public function user()
     {
@@ -19,5 +19,10 @@ class Comment extends Model
     public function berita()
     {
         return $this->belongsTo(Berita::class);
+    }
+
+    public function pengunjung()
+    {
+        return $this->belongsTo(Pengunjung::class, 'id_pengunjung');
     }
 }

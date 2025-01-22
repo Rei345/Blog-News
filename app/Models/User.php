@@ -53,14 +53,8 @@ class User extends Authenticatable
         return $this->hasMany(Berita::class, 'id_user');
     }
 
-    protected static function boot()
+    public function comments()
     {
-        parent::boot();
-
-        static::creating(function ($user) {
-            if (!in_array($user->role, ['admin', 'user', 'viewer'])) {
-                throw new \Exception('Invalid role assigned to user.');
-            }
-        });
+        return $this->hasMany(Comment::class, 'id_comment');
     }
 }

@@ -7,6 +7,7 @@ use App\Models\Page;
 use App\Models\Berita;
 use App\Models\Comment;
 use App\Models\Kategori;
+use App\Models\Pengunjung;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -19,7 +20,9 @@ class HomeController extends Controller
         $berita = Berita::with('kategori')->latest()->take(6)->get()->unique('id_kategori');
         $mostViews = Berita::with('kategori')->orderByDesc('total_views')->take(3)->get();
         $kategori = Kategori::all();
-        return view ('frontend.content.home', compact('menu', 'berita', 'mostViews', 'kategori'));
+        $pengunjung = Pengunjung::all();
+        
+        return view ('frontend.content.home', compact('menu', 'berita', 'mostViews', 'kategori', 'pengunjung'));
     }
 
     public function search(Request $request)
@@ -97,7 +100,7 @@ class HomeController extends Controller
         $kategori = Kategori::all();
 
         // Untuk post comment
-        $comments = Comment::where('id_berita', $berita->id)->with('user')->latest()->get();
+        $comments = Comment::where('id_berita', $berita->id_berita)->with('user')->get();
         
         //Update total views
         $berita->total_views = $berita->total_views + 1;
@@ -108,19 +111,27 @@ class HomeController extends Controller
     public function postComment(Request $request, $slug)
     {
         $request->validate([
-            'comment' => 'required|string|max:1000',
+            'comment' => 'required|max:500',
         ]);
-    
+
         $berita = Berita::where('slug', $slug)->firstOrFail();
-    
-        Comment::create([
-            'id_user' => auth()->id(),
-            'id_berita' => $berita->id,
+        $comment = new Comment([
             'comment' => $request->comment,
+            'id_user' => auth()->id(),
+            'id_berita' => $berita->id_berita,
         ]);
-    
-        return redirect()->route('home.detailBerita', ['slug' => $slug])
-            ->with('success', 'Comment added successfully!');
+        
+        $comment->save();
+
+        return response()->json([
+            'user' => [
+                'name' => auth()->user()->name,
+                'avatar' => auth()->user()->profile_picture 
+                            ? asset('storage/' . auth()->user()->profile_picture) 
+                            : asset('assets/img/undraw_profile.svg'),
+            ],
+            'comment' => $comment->comment,
+        ]);
     }
 
     public function detailPage($id)

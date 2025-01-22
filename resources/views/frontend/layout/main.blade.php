@@ -45,6 +45,15 @@
                     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
                     <div class="collapse navbar-collapse" id="navbarSupportedContent">
                         <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                            <li class="nav-item">
+                                @if (Auth::guard('pengunjung')->check()) 
+                                    <!-- Jika pengguna (pengunjung) login -->
+                                    <a class="nav-link" href="{{ route('auth.logout') }}">Logout</a>
+                                @else
+                                    <!-- Jika pengguna belum login -->
+                                    <a class="nav-link" href="{{ route('auth.index') }}">Login</a>
+                                @endif
+                            </li>                                                                                    
 
                             @foreach ($menu as $dm)
                                 @if (sizeof($dm['itemMenu']) > 0)

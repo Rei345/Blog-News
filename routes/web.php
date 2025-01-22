@@ -39,8 +39,8 @@ Route::post('/login', [AuthController::class, 'verify'])->name('auth.verify');
 Route::get('/register', [AuthController::class, 'registerForm'])->name('auth.registerForm')->middleware('guest');
 Route::post('/register', [AuthController::class, 'register'])->name('auth.register')->middleware('guest');
 
-// Routes untuk role viewer (akses berita saja)
-Route::middleware(['auth', 'role:viewer'])->group(function () {
+// Routes untuk pengunjung yang sudah terautentikasi
+Route::middleware(['auth:pengunjung'])->group(function () {
     Route::post('/berita/{slug}/comment', [HomeController::class, 'postComment'])->name('home.postComment');
     Route::get('/logout', [AuthController::class, 'logout'])->name('auth.logout');
 });
@@ -92,7 +92,7 @@ Route::group(['middleware' => 'auth:user'], function(){
         Route::get('/menu/hapus/{id}', [MenuController::class, 'hapus'])->name('menu.hapus');
         Route::get('/menu/order/{idMenu}/{idSwap}', [MenuController::class, 'order'])->name('menu.order');
     });
-    Route::get('/logout', [AuthController::class, 'logout'])->name('auth.logout');
+    Route::get('/admin/logout', [AuthController::class, 'logout'])->name('admin.auth.logout');
 });
 
 Route::get('files/{filename}', function ($filename)
