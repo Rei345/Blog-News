@@ -24,7 +24,6 @@ class AuthController extends Controller
 
         // Cek login di tabel users (untuk role admin dan user)
         if (Auth::guard('user')->attempt(['email' => $request->email, 'password' => $request->password])) {
-            // Redirect ke halaman dashboard untuk role user atau admin
             return redirect()->route('dashboard.index'); 
         }
 
@@ -33,9 +32,8 @@ class AuthController extends Controller
 
         if ($pengunjung && Hash::check($request->password, $pengunjung->password)) {
             // Jika ditemukan di tabel pengunjung dan password cocok
-            Auth::guard('pengunjung')->login($pengunjung); // Anda mungkin perlu membuat guard khusus untuk pengunjung
-            // Redirect ke halaman frontend jika login berhasil
-            return redirect()->route('home.index'); // Redirect ke homepage atau halaman yang sesuai untuk pengunjung
+            Auth::guard('pengunjung')->login($pengunjung);
+            return redirect()->route('home.index'); 
         }
 
         // Jika email dan password tidak valid
@@ -61,7 +59,7 @@ class AuthController extends Controller
             'nama_pengunjung' => $request->nama_pengunjung,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'foto_profile' => asset('assets/img/undraw_profile_1.svg'), // atau beri nilai default jika perlu
+            'foto_profile' => asset('assets/img/undraw_profile_1.svg'),
         ]);
 
         // Redirect ke halaman login dengan pesan sukses
@@ -82,7 +80,6 @@ class AuthController extends Controller
             return redirect()->route('auth.index')->with('pesan', ['success', 'Anda berhasil logout sebagai pengunjung.']);
         }
 
-        // Jika tidak ada yang login
         return redirect()->route('auth.index')->with('pesan', ['warning', 'Tidak ada sesi login yang ditemukan.']);
     }
 }

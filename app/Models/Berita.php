@@ -30,4 +30,9 @@ class Berita extends Model
     {
         return $this->belongsTo(User::class, 'id_user');
     }
+
+    public function comments()
+    {
+        return $this->hasMany(User::class, 'id_berita');
+    }
 }

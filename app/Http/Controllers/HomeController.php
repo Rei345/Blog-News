@@ -100,7 +100,7 @@ class HomeController extends Controller
         $kategori = Kategori::all();
 
         // Untuk post comment
-        $comments = Comment::where('id_berita', $berita->id_berita)->with('user')->get();
+        $comments = Comment::with('pengunjung')->where('id_berita', $berita->id_berita)->get();
         
         //Update total views
         $berita->total_views = $berita->total_views + 1;
@@ -114,20 +114,36 @@ class HomeController extends Controller
             'comment' => 'required|max:500',
         ]);
 
+        // Cari berita berdasarkan slug
         $berita = Berita::where('slug', $slug)->firstOrFail();
-        $comment = new Comment([
-            'comment' => $request->comment,
-            'id_user' => auth()->id(),
-            'id_berita' => $berita->id_berita,
-        ]);
-        
-        $comment->save();
 
+        // Tentukan user berdasarkan guard yang aktif
+        $user = null;
+        if (auth('pengunjung')->check()) {
+            $user = auth('pengunjung')->user();
+        } elseif (auth('user')->check()) {
+            $user = auth('user')->user();
+        }
+
+        // Jika user tidak ditemukan, kembalikan respons unauthorized
+        if (!$user) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+
+        // Simpan komentar menggunakan polymorphic relationship
+        $comment = $user->comments()->create([
+            'comment' => $request->comment,
+            'commentable_id' => $user->id, // ID dari user atau pengunjung
+            'commentable_type' => get_class($user), // Nama model (User atau Pengunjung)
+            'id_berita' => $berita->id_berita, // Opsional, jika Anda ingin menghubungkan dengan berita
+        ]);
+
+        // Kembalikan respons JSON
         return response()->json([
             'user' => [
-                'name' => auth()->user()->name,
-                'avatar' => auth()->user()->profile_picture 
-                            ? asset('storage/' . auth()->user()->profile_picture) 
+                'name' => $user->nama_pengunjung ?? $user->name, // Penyesuaian atribut nama
+                'avatar' => $user->foto_profile 
+                            ? asset('storage/' . $user->foto_profile) 
                             : asset('assets/img/undraw_profile.svg'),
             ],
             'comment' => $comment->comment,

@@ -6,6 +6,7 @@ use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class Pengunjung extends Model implements AuthenticatableContract
 {
@@ -28,11 +29,16 @@ class Pengunjung extends Model implements AuthenticatableContract
     ];
 
     protected $table = "pengunjung";
-    protected $primaryKey = "id_pengunjung";
+    protected $primaryKey = "id";
 
     // Relasi atau hubungan lainnya
-    public function comments()
+    public function comments(): MorphMany
     {
-        return $this->hasMany(Comment::class, 'id_comment');
+        return $this->morphMany(Comment::class, 'commentable');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'id_user');
     }
 }

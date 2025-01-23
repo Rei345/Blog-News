@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class User extends Authenticatable
 {
@@ -53,8 +54,8 @@ class User extends Authenticatable
         return $this->hasMany(Berita::class, 'id_user');
     }
 
-    public function comments()
+    public function comments(): MorphMany
     {
-        return $this->hasMany(Comment::class, 'id_comment');
+        return $this->morphMany(Comment::class, 'commentable');
     }
 }

@@ -11,12 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('comments', function (Blueprint $table) {
+        Schema::create('pengunjung', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('id_user')->constrained('users')->onDelete('cascade');
-            $table->integer('id_berita');
-            $table->foreign('id_berita')->references('id_berita')->on('berita');
-            $table->text('comment');
+            $table->string('nama_pengunjung');
+            $table->string('email')->unique();
+            $table->timestamp('email_verified_at')->nullable();
+            $table->string('password');
+            $table->string('foto_profile');
+            $table->rememberToken();
             $table->timestamps();
         });
     }
@@ -26,6 +28,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('comments');
+        Schema::dropIfExists('pengunjung');
     }
 };
+

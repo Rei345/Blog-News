@@ -4,25 +4,31 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class Comment extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['id_user', 'id_berita', 'comment', 'id_pengunjung'];
+    protected $fillable = ['comment', 'commentable_id', 'commentable_type', 'id_berita'];
 
-    public function user()
+    protected $table = "comments";
+
+    protected $primaryKey = "id";
+
+    public function commentable(): MorphTo
     {
-        return $this->belongsTo(User::class);
+        return $this->morphTo();
     }
 
     public function berita()
     {
-        return $this->belongsTo(Berita::class);
+        return $this->belongsTo(Berita::class, 'id_berita');
     }
 
+    // Relasi dengan Pengunjung
     public function pengunjung()
     {
-        return $this->belongsTo(Pengunjung::class, 'id_pengunjung');
+        return $this->belongsTo(Pengunjung::class, 'commentable_id'); // Ganti sesuai dengan kolom relasi yang benar
     }
 }

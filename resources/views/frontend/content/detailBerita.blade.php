@@ -56,31 +56,52 @@
                     <div class="card bg-light">
                         <div class="card-body">
                             <h5 class="card-title mb-4">Comment ({{ $comments->count() }})</h5>
-                            
+                
                             <!-- Single Comment -->
                             @foreach ($comments as $comment)
                                 <div class="d-flex mb-4">
                                     <div class="flex-shrink-0">
-                                        <img class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;" src="https://sguru.org/wp-content/uploads/2017/06/cool-anonymous-profile-pictures-VDWrWSva.jpg" alt="Avatar" />
+                                        <!-- Menampilkan avatar berdasarkan apakah yang memberikan komentar user atau pengunjung -->
+                                        @if ($comment->commentable_type == \App\Models\User::class)
+                                            <img class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;" 
+                                                src="{{ asset('storage/' . $comment->commentable->profile_picture) }}" alt="Avatar" />
+                                        @elseif ($comment->commentable_type == \App\Models\Pengunjung::class)
+                                            <img class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;" 
+                                                src="{{ asset('storage/' . $comment->commentable->foto_profile) }}" alt="Avatar" />
+                                        @else
+                                            <img class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;" 
+                                                src="https://sguru.org/wp-content/uploads/2017/06/cool-anonymous-profile-pictures-VDWrWSva.jpg" alt="Avatar" />
+                                        @endif
                                     </div>
                                     <div class="ms-3">
-                                        <div class="fw-bold">{{ optional($comment->user)->name ?? 'Anonymous' }}</div>
+                                        <!-- Menampilkan nama sesuai dengan commentable_type -->
+                                        <div class="fw-bold">
+                                            @if ($comment->commentable_type == \App\Models\User::class)
+                                                {{ $comment->commentable->name }}  <!-- Nama untuk User -->
+                                            @elseif ($comment->commentable_type == \App\Models\Pengunjung::class)
+                                                {{ $comment->commentable->nama_pengunjung }}  <!-- Nama untuk Pengunjung -->
+                                            @else
+                                                Anonymous
+                                            @endif
+                                        </div>
                                         <p class="mb-0">{{ $comment->comment }}</p>
                                     </div>
                                 </div>
                             @endforeach
-
+                
                             <div id="comments">
                                 <!-- Komentar akan ditambahkan di sini -->
-                            </div>                            
-
+                            </div>
+                
                             <!-- Comment Form -->
                             <form 
                                 id="commentForm"
                                 class="d-flex align-items-start" 
                                 action="{{ route('home.postComment', $berita->slug) }}" 
                                 method="POST"
-                                @if (!auth()->check()) onsubmit="event.preventDefault(); alert('You need to log in to post a comment!');" @endif
+                                @if (!auth('pengunjung')->check() && !auth('user')->check()) 
+                                    onsubmit="event.preventDefault(); alert('You need to log in to post a comment!');" 
+                                @endif
                             >
                                 @csrf
                                 <textarea 
@@ -89,10 +110,10 @@
                                     rows="3" 
                                     placeholder="Join the discussion and leave a comment!" 
                                     style="flex-grow: 1;"
-                                    {{ !auth()->check() ? 'disabled' : '' }}
+                                    {{ !(auth('pengunjung')->check() || auth('user')->check()) ? 'disabled' : '' }}
                                 ></textarea>
-
-                                @if (auth()->check())
+                
+                                @if (auth('pengunjung')->check() || auth('user')->check())
                                     <button 
                                         type="submit" 
                                         class="btn btn-primary d-flex align-items-center justify-content-center" 
@@ -111,17 +132,16 @@
                                     </button>
                                 @endif                             
                             </form>
-
+                
                             <!-- Alert for non-logged-in users -->
-                            @if (!auth()->check())
+                            @if (!auth('pengunjung')->check() && !auth('user')->check())
                                 <p class="text-muted mt-2">
                                     <strong>Note:</strong> Please <a href="{{ route('auth.index') }}">log in</a> to leave a comment.
                                 </p>
                             @endif
                         </div>
                     </div>
-                </section>
-            </div>
+                </section>                
             </div>
         </div>
     </div>
