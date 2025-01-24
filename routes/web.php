@@ -38,6 +38,12 @@ Route::get('/login', [AuthController::class, 'index'])->name('auth.index')->midd
 Route::post('/login', [AuthController::class, 'verify'])->name('auth.verify');
 Route::get('/register', [AuthController::class, 'registerForm'])->name('auth.registerForm')->middleware('guest');
 Route::post('/register', [AuthController::class, 'register'])->name('auth.register')->middleware('guest');
+// Google Auth
+Route::get('auth/google', [AuthController::class, 'redirectToGoogle'])->name('auth.google');
+Route::get('auth/google/callback', [AuthController::class, 'handleGoogleCallback']);
+// Facebook Auth
+Route::get('auth/facebook', [AuthController::class, 'redirectToFacebook'])->name('auth.facebook');
+Route::get('auth/facebook/callback', [AuthController::class, 'handleFacebookCallback']);
 
 // Routes untuk pengunjung yang sudah terautentikasi
 Route::middleware(['auth:pengunjung'])->group(function () {

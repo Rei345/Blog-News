@@ -3,10 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Pengunjung;
-use App\Models\User;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Laravel\Socialite\Facades\Socialite;
 
 class AuthController extends Controller
 {
@@ -81,5 +82,52 @@ class AuthController extends Controller
         }
 
         return redirect()->route('auth.index')->with('pesan', ['warning', 'Tidak ada sesi login yang ditemukan.']);
+    }
+
+    // Redirect to Google
+    public function redirectToGoogle()
+    {
+        return Socialite::driver('google')->redirect();
+    }
+
+    // Handle Google callback
+    public function handleGoogleCallback()
+    {
+        $user = Socialite::driver('google')->user();
+        $this->registerOrLogin($user, 'google');
+        return redirect()->route('home.index');
+    }
+
+    //redirect to Facebook 
+    public function redirectToFacebook()
+    {
+        return Socialite::driver('facebook')->redirect();
+    }
+
+    //Handle Facebook callback
+    public function handleFacebookCallback()
+    {
+        $user = Socialite::driver('facebook')->user();
+        $this->registerOrLogin($user, 'facebook');
+        return redirect()->route('home.index');
+    }
+
+    // Common Registration/Login
+    private function registerOrLogin($socialUser, $provider)
+    {
+        $pengunjung = Pengunjung::where('email', $socialUser->getEmail())->first();
+
+        if (!$pengunjung) {
+            $pengunjung - Pengunjung::class([
+                'nama_pengunjung' => $socialUser->getName(),
+                'email' => $socialUser->getEmail(),
+                'password' => bcrypt(Str::random(16)),
+                'foto_profile' => $socialUser->getAvatar(),
+                'provider' => $provider,
+                'id_provider' => $socialUser->getId(),
+            ]);
+        }
+
+        auth('pengunjung')->login($pengunjung);
     }
 }
