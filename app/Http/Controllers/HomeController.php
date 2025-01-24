@@ -20,9 +20,8 @@ class HomeController extends Controller
         $berita = Berita::with('kategori')->latest()->take(6)->get()->unique('id_kategori');
         $mostViews = Berita::with('kategori')->orderByDesc('total_views')->take(3)->get();
         $kategori = Kategori::all();
-        $pengunjung = Pengunjung::all();
         
-        return view ('frontend.content.home', compact('menu', 'berita', 'mostViews', 'kategori', 'pengunjung'));
+        return view ('frontend.content.home', compact('menu', 'berita', 'mostViews', 'kategori'));
     }
 
     public function search(Request $request)

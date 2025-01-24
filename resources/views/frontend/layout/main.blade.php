@@ -49,6 +49,9 @@
                                 @if (Auth::guard('pengunjung')->check()) 
                                     <!-- Jika pengguna (pengunjung) login -->
                                     <a class="nav-link" href="{{ route('auth.logout') }}">Logout</a>
+                                @elseif (auth('user')->check())
+                                    <!-- Jika pengguna (user) login -->
+                                    <a class="nav-link" href="{{ route('admin.auth.logout') }}">Logout</a>
                                 @else
                                     <!-- Jika pengguna belum login -->
                                     <a class="nav-link" href="{{ route('auth.index') }}">Login</a>
