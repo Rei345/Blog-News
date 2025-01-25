@@ -17,6 +17,8 @@ class Pengunjung extends Model implements AuthenticatableContract
         'email',
         'password',
         'foto_profile',
+        'provider',
+        'id_provider'
     ];
 
     protected $hidden = [

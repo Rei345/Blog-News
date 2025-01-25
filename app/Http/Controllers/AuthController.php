@@ -93,7 +93,7 @@ class AuthController extends Controller
     // Handle Google callback
     public function handleGoogleCallback()
     {
-        $user = Socialite::driver('google')->user();
+        $user = Socialite::driver('google')->stateless()->user();
         $this->registerOrLogin($user, 'google');
         return redirect()->route('home.index');
     }
@@ -118,7 +118,7 @@ class AuthController extends Controller
         $pengunjung = Pengunjung::where('email', $socialUser->getEmail())->first();
 
         if (!$pengunjung) {
-            $pengunjung - Pengunjung::class([
+            $pengunjung = Pengunjung::create([
                 'nama_pengunjung' => $socialUser->getName(),
                 'email' => $socialUser->getEmail(),
                 'password' => bcrypt(Str::random(16)),
