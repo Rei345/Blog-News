@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Pengunjung;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Laravel\Socialite\Facades\Socialite;
@@ -87,15 +88,20 @@ class AuthController extends Controller
     // Redirect to Google
     public function redirectToGoogle()
     {
-        return Socialite::driver('google')->redirect();
+        return Socialite::driver('google')->stateless()->redirect();
     }
 
     // Handle Google callback
     public function handleGoogleCallback()
     {
-        $user = Socialite::driver('google')->stateless()->user();
-        $this->registerOrLogin($user, 'google');
-        return redirect()->route('home.index');
+        try {
+            $user = Socialite::driver('google')->user();
+            $this->registerOrLogin($user, 'google');
+            return redirect()->route('home.index');
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+            return redirect()->route('home.index')->with('error', 'Login Google gagal.');
+        }
     }
 
     //redirect to Facebook 
@@ -107,7 +113,7 @@ class AuthController extends Controller
     //Handle Facebook callback
     public function handleFacebookCallback()
     {
-        $user = Socialite::driver('facebook')->user();
+        $user = Socialite::driver('facebook')->stateless()->user();
         $this->registerOrLogin($user, 'facebook');
         return redirect()->route('home.index');
     }

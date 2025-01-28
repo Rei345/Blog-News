@@ -43,5 +43,4 @@ return [
         'redirect' => env('FACEBOOK_REDIRECT_URI'),
     ],
 
-
 ];
