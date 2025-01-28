@@ -67,7 +67,7 @@
                                                 src="{{ asset('storage/' . $comment->commentable->profile_picture) }}" alt="Avatar" />
                                         @elseif ($comment->commentable_type == \App\Models\Pengunjung::class)
                                             <img class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;" 
-                                                src="{{ asset('storage/' . $comment->commentable->foto_profile) }}" alt="Avatar" />
+                                                src="{{ $comment->commentable->foto_profile }}" alt="Avatar" />
                                         @else
                                             <img class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;" 
                                                 src="https://sguru.org/wp-content/uploads/2017/06/cool-anonymous-profile-pictures-VDWrWSva.jpg" alt="Avatar" />
