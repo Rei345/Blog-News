@@ -48,6 +48,8 @@ Route::get('auth/facebook/callback', [AuthController::class, 'handleFacebookCall
 // Routes untuk pengunjung yang sudah terautentikasi
 Route::middleware(['auth:pengunjung'])->group(function () {
     Route::post('/berita/{slug}/comment', [HomeController::class, 'postComment'])->name('home.postComment');
+    Route::post('/berita/{slug}/comment/like', [HomeController::class, 'likeComment'])->name('comment.like');
+    Route::post('/berita/{slug}/comment/reply', [HomeController::class, 'replyComment'])->name('comment.reply');
     Route::get('/logout', [AuthController::class, 'logout'])->name('auth.logout');
 });
 

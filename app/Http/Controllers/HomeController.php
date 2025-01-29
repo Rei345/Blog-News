@@ -8,6 +8,8 @@ use App\Models\Berita;
 use App\Models\Comment;
 use App\Models\Kategori;
 use App\Models\Pengunjung;
+use App\Models\CommentLike;
+use App\Models\CommentReply;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -130,12 +132,12 @@ class HomeController extends Controller
         }
 
         // Simpan komentar menggunakan polymorphic relationship
-        $comment = $user->comments()->create([
+        $comment = Comment::create([
             'comment' => $request->comment,
-            'commentable_id' => $user->id, // ID dari user atau pengunjung
-            'commentable_type' => get_class($user), // Nama model (User atau Pengunjung)
-            'id_berita' => $berita->id_berita, // Opsional, jika Anda ingin menghubungkan dengan berita
-        ]);
+            'commentable_id' => $user->id, // User yang memberi komentar
+            'commentable_type' => get_class($user), // Model User atau Pengunjung
+            'id_berita' => $berita->id_berita, // Berita yang dikomentari
+        ]);        
 
         // Kembalikan respons JSON
         return response()->json([
@@ -181,6 +183,92 @@ class HomeController extends Controller
             : 'Kategori';
 
         return view('frontend.content.semuaBerita', compact('menu', 'berita', 'query', 'kategori', 'kategoriTerpilih'));
+    }
+
+    public function likeComment(Request $request, $slug)
+    {
+        try {
+            $user = auth('pengunjung')->user() ?? auth('user')->user();
+
+            if (!$user) {
+                return response()->json(['error' => 'Unauthorized'], 401);
+            }
+
+            $commentId = $request->input('id_comment');
+
+            if (!$commentId) {
+                return response()->json(['error' => 'Invalid comment ID'], 400);
+            }
+
+            $comment = Comment::where('id', $commentId)->first();
+
+            if (!$comment) {
+                return response()->json(['error' => 'Comment not found'], 404);
+            }
+
+            $like = CommentLike::where('id_comment', $comment->id)
+                                ->where('commentable_id', $user->id)
+                                ->where('commentable_type', get_class($user))
+                                ->first();
+
+            if ($like) {
+                $like->delete();
+                $liked = false;
+            } else {
+                CommentLike::create([
+                    'id_comment' => $comment->id,
+                    'commentable_id' => $user->id,
+                    'commentable_type' => get_class($user),
+                ]);
+                $liked = true;
+            }
+
+            return response()->json([
+                'message' => $liked ? 'Liked' : 'Unliked',
+                'total_likes' => CommentLike::where('id_comment', $comment->id)->count()
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error("Error in likeComment: " . $e->getMessage());
+            return response()->json(['error' => 'Server error', 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function replyComment(Request $request, $commentId)
+    {
+        $request->validate([
+            'reply' => 'required|string|max:500',
+        ]);
+
+        $user = auth('pengunjung')->user() ?? auth('user')->user();
+
+        if (!$user) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+
+        $comment = Comment::find($commentId);
+
+        if (!$comment) {
+            return response()->json(['error' => 'Comment not found'], 404);
+        }
+
+        $reply = CommentReply::create([
+            'id_comment' => $commentId,
+            'commentable_id' => $user->id,
+            'commentable_type' => get_class($user),
+            'reply' => $request->reply,
+        ]);
+
+        return response()->json([
+            'user' => [
+                'name' => $user->nama_pengunjung ?? $user->name,
+                'avatar' => $user->foto_profile 
+                            ? asset('storage/' . $user->foto_profile) 
+                            : asset('assets/img/undraw_profile.svg'),
+            ],
+            'reply' => $reply->reply,
+            'total_replies' => CommentReply::where('id_comment', $commentId)->count(),
+        ]);
     }
 
     private function getMenu()

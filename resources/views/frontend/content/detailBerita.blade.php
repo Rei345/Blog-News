@@ -66,8 +66,8 @@
                                             <img class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;" 
                                                 src="{{ asset('storage/' . $comment->commentable->profile_picture) }}" alt="Avatar" />
                                         @elseif ($comment->commentable_type == \App\Models\Pengunjung::class)
-                                            <img class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;" 
-                                                src="{{ $comment->commentable->foto_profile }}" alt="Avatar" />
+                                        <img class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;" 
+                                                src="{{ $comment->commentable->foto_profile ?? asset('assets/img/default-avatar.png') }}" alt="Avatar" />                                    
                                         @else
                                             <img class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;" 
                                                 src="https://sguru.org/wp-content/uploads/2017/06/cool-anonymous-profile-pictures-VDWrWSva.jpg" alt="Avatar" />
@@ -85,13 +85,35 @@
                                             @endif
                                         </div>
                                         <p class="mb-0">{{ $comment->comment }}</p>
+
+                                        <!-- Like Button -->
+                                        <button class="btn btn-sm btn-outline-primary like-btn" data-id="{{ $comment->id }}">
+                                            <i class="fas fa-thumbs-up"></i> Like (<span class="like-count">{{ $comment->likes->count() }}</span>)
+                                        </button>                                        
+
+                                        <!-- Reply Button -->
+                                        <button class="btn btn-sm btn-outline-secondary reply-btn" data-id="{{ $comment->id }}">
+                                            <i class="fas fa-reply"></i> Reply
+                                        </button>
+
+                                        <!-- Form Balasan (Hidden by Default) -->
+                                        <form class="reply-form mt-2" data-id="{{ $comment->id }}" style="display: none;">
+                                            <input type="text" class="form-control reply-input" placeholder="Write a reply..." />
+                                            <button type="button" class="btn btn-primary btn-sm submit-reply">Submit</button>
+                                        </form>
+
+                                        <!-- Menampilkan balasan komentar -->
+                                        <div class="replies mt-2" data-id="{{ $comment->id }}">
+                                            @foreach ($comment->replies as $reply)
+                                                <div class="d-flex align-items-start mt-2">
+                                                    <div class="fw-bold">{{ $reply->user->name }}</div>
+                                                    <p class="mb-0 ms-2">{{ $reply->reply }}</p>
+                                                </div>
+                                            @endforeach
+                                        </div>
                                     </div>
                                 </div>
                             @endforeach
-                
-                            <div id="comments">
-                                <!-- Komentar akan ditambahkan di sini -->
-                            </div>
                 
                             <!-- Comment Form -->
                             <form 
@@ -176,6 +198,72 @@
             error: function(xhr) {
                 alert('Terjadi kesalahan: ' + xhr.responseJSON.message);
             }
+        });
+    });
+</script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Like Comment
+        document.querySelectorAll(".like-btn").forEach(button => {
+            button.addEventListener("click", function () {
+                let userLoggedIn = "{{ auth('pengunjung')->check() || auth('user')->check() }}";
+                if (!userLoggedIn) {
+                    alert("You need to log in to like a comment!");
+                    return;
+                }
+                let commentId = this.getAttribute("data-id");
+                let likeCountElement = this.querySelector(".like-count");
+
+                fetch("{{ route('comment.like', ['slug' => $berita->slug]) }}", { 
+                    method: "POST",
+                    headers: {
+                        "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content,
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ id_comment: commentId }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.message === "Liked") {
+                        likeCountElement.textContent = parseInt(likeCountElement.textContent) + 1;
+                    } else {
+                        likeCountElement.textContent = parseInt(likeCountElement.textContent) - 1;
+                    }
+                })
+                .catch(error => console.error("Error:", error));
+            });
+        });
+        
+
+        // Reply Comment
+        document.querySelectorAll(".submit-reply").forEach(button => {
+            button.addEventListener("click", function () {
+                let commentId = this.closest(".reply-form").getAttribute("data-id");
+                let replyInput = this.previousElementSibling;
+
+                if (replyInput.value.trim() === "") {
+                    alert("Reply cannot be empty!");
+                    return;
+                }
+
+                fetch(`/comment/${commentId}/reply`, {
+                    method: "POST",
+                    headers: {
+                        "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content,
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ reply: replyInput.value }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.reply) {
+                        let repliesContainer = document.querySelector(`.replies[data-id="${commentId}"]`);
+                        repliesContainer.innerHTML += `<div class="mt-2"><strong>${data.user.name}</strong>: ${data.reply}</div>`;
+                        replyInput.value = "";
+                    }
+                })
+                .catch(error => console.error("Error:", error));
+            });
         });
     });
 </script>

@@ -16,7 +16,7 @@ class Comment extends Model
 
     protected $primaryKey = "id";
 
-    public function commentable(): MorphTo
+    public function commentable()
     {
         return $this->morphTo();
     }
@@ -30,5 +30,15 @@ class Comment extends Model
     public function pengunjung()
     {
         return $this->belongsTo(Pengunjung::class, 'commentable_id'); // Ganti sesuai dengan kolom relasi yang benar
+    }
+
+    public function likes()
+    {
+        return $this->hasMany(CommentLike::class, 'id_comment');
+    }
+
+    public function replies()
+    {
+        return $this->hasMany(CommentReply::class, 'id_comment');
     }
 }
