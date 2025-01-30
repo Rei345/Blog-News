@@ -142,10 +142,10 @@ class HomeController extends Controller
         // Kembalikan respons JSON
         return response()->json([
             'user' => [
-                'name' => $user->nama_pengunjung ?? $user->name, // Penyesuaian atribut nama
-                'avatar' => $user->foto_profile 
-                            ? asset('storage/' . $user->foto_profile) 
-                            : asset('assets/img/undraw_profile.svg'),
+                'name' => $user->nama_pengunjung ?? $user->name,
+                'avatar' => $user instanceof \App\Models\Pengunjung
+                    ? ($user->foto_profile ? $user->foto_profile : asset('assets/img/default-avatar.png'))
+                    : ($user->profile_picture ? $user->profile_picture : asset('assets/img/default-avatar.png')),
             ],
             'comment' => $comment->comment,
         ]);
@@ -236,8 +236,9 @@ class HomeController extends Controller
 
     public function replyComment(Request $request, $commentId)
     {
-        $request->validate([
-            'reply' => 'required|string|max:500',
+        Log::info('Reply Received:', [
+            'comment_id' => $commentId,
+            'reply' => $request->input('reply')
         ]);
 
         $user = auth('pengunjung')->user() ?? auth('user')->user();
@@ -246,14 +247,14 @@ class HomeController extends Controller
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
-        $comment = Comment::find($commentId);
+        $comment = Comment::find($request->id_comment);
 
         if (!$comment) {
             return response()->json(['error' => 'Comment not found'], 404);
         }
 
         $reply = CommentReply::create([
-            'id_comment' => $commentId,
+            'id_comment' => $comment->id,
             'commentable_id' => $user->id,
             'commentable_type' => get_class($user),
             'reply' => $request->reply,
@@ -262,13 +263,13 @@ class HomeController extends Controller
         return response()->json([
             'user' => [
                 'name' => $user->nama_pengunjung ?? $user->name,
-                'avatar' => $user->foto_profile 
-                            ? asset('storage/' . $user->foto_profile) 
-                            : asset('assets/img/undraw_profile.svg'),
+                'avatar' => $user instanceof \App\Models\Pengunjung
+                    ? ($user->foto_profile ? $user->foto_profile : asset('assets/img/default-avatar.png'))
+                    : ($user->profile_picture ? $user->profile_picture : asset('assets/img/default-avatar.png')),
             ],
             'reply' => $reply->reply,
-            'total_replies' => CommentReply::where('id_comment', $commentId)->count(),
-        ]);
+            'total_replies' => CommentReply::where('id_comment', $comment->id)->count(),
+        ]);                      
     }
 
     private function getMenu()

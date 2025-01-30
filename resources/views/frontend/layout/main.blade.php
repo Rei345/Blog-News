@@ -6,6 +6,7 @@
         <meta name="description" content="" />
         <meta name="author" content="" />
         <meta name="csrf-token" content="{{ csrf_token() }}">
+        <meta name="user-auth" content="{{ auth('pengunjung')->check() || auth('user')->check() }}">
         <title>Reinhard News</title>
         <!-- Favicon-->
         <link rel="icon" type="image/x-icon" href="{{ asset('assets-fe/assets/favicon.ico') }}" />

@@ -32,10 +32,10 @@
                                     <a href="#!">reinhardsitompul03@gmail.com</a>
                                 </p>
                                 <div class="h6 fw-bolder">Follow me</div>
-                                <a class="fs-5 px-2 link-dark" href="#!"><i class="bi-instagram"></i></a>
-                                <a class="fs-5 px-2 link-dark" href="#!"><i class="bi-github"></i></a>
-                                <a class="fs-5 px-2 link-dark" href="#!"><i class="bi-linkedin"></i></a>
-                                <a class="fs-5 px-2 link-dark" href="#!"><i class="bi-youtube"></i></a>
+                                <a class="fs-5 px-2 link-dark" href="https://www.instagram.com/rein.hardsitompul18?igsh=MXBlYWk1NjExYjc2cA=="><i class="bi-instagram"></i></a>
+                                <a class="fs-5 px-2 link-dark" href="https://github.com/Rei345"><i class="bi-github"></i></a>
+                                <a class="fs-5 px-2 link-dark" href="https://www.linkedin.com/in/reinhardsitompul/"><i class="bi-linkedin"></i></a>
+                                <a class="fs-5 px-2 link-dark" href="https://youtube.com/@reinhardsitompul7548?si=YIjl4yyY7LjXGaip"><i class="bi-youtube"></i></a>
                             </div>
                         </div>
                     </div>

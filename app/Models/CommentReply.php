@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class CommentReply extends Model
 {
@@ -21,5 +22,10 @@ class CommentReply extends Model
     public function comment()
     {
         return $this->belongsTo(Comment::class, 'id_comment');
+    }
+
+    public function commentable(): MorphTo
+    {
+        return $this->morphTo();
     }
 }

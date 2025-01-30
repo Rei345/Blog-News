@@ -106,8 +106,27 @@
                                         <div class="replies mt-2" data-id="{{ $comment->id }}">
                                             @foreach ($comment->replies as $reply)
                                                 <div class="d-flex align-items-start mt-2">
-                                                    <div class="fw-bold">{{ $reply->user->name }}</div>
-                                                    <p class="mb-0 ms-2">{{ $reply->reply }}</p>
+                                                    @php
+                                                        $commenter = $reply->commentable;
+                                                        $avatar = asset('assets/img/default-avatar.png'); // Default avatar
+
+                                                        if ($commenter) {
+                                                            if ($reply->commentable_type == \App\Models\User::class) {
+                                                                $avatar = $commenter->profile_picture ? asset('storage/' . $commenter->profile_picture) : $avatar;
+                                                                $name = $commenter->name;
+                                                            } elseif ($reply->commentable_type == \App\Models\Pengunjung::class) {
+                                                                $avatar = $commenter->foto_profile ? $commenter->foto_profile : $avatar;
+                                                                $name = $commenter->nama_pengunjung;
+                                                            } else {
+                                                                $name = "Anonymous";
+                                                            }
+                                                        }
+                                                    @endphp
+
+                                                    <img src="{{ $avatar }}" alt="Profile" class="rounded-circle" width="30">
+                                                    <div class="ms-2">
+                                                        <strong>{{ $name }}</strong>: {{ $reply->reply }}
+                                                    </div>
                                                 </div>
                                             @endforeach
                                         </div>
@@ -115,6 +134,10 @@
                                 </div>
                             @endforeach
                 
+                            <div id="comments">
+                                <!-- Komentar akan ditambahkan di sini -->
+                            </div>
+
                             <!-- Comment Form -->
                             <form 
                                 id="commentForm"
@@ -233,34 +256,65 @@
                 .catch(error => console.error("Error:", error));
             });
         });
-        
+    });
+</script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Toggle Reply Form
+        document.querySelectorAll(".reply-btn").forEach(button => {
+            button.addEventListener("click", function () {
+                let commentId = this.getAttribute("data-id");
+                let replyForm = document.querySelector(`.reply-form[data-id='${commentId}']`);
 
-        // Reply Comment
+                if (replyForm) {
+                    replyForm.style.display = replyForm.style.display === "none" ? "block" : "none";
+                }
+            });
+        });
+
+        // Submit Reply
+        let isAuthenticated = document.querySelector('meta[name="user-auth"]').content === "1";
         document.querySelectorAll(".submit-reply").forEach(button => {
             button.addEventListener("click", function () {
+                let userLoggedIn = "{{ auth('pengunjung')->check() || auth('user')->check() }}";
+                if (!userLoggedIn) {
+                    alert("You need to log in to reply!");
+                    return;
+                }
+
                 let commentId = this.closest(".reply-form").getAttribute("data-id");
                 let replyInput = this.previousElementSibling;
-
                 if (replyInput.value.trim() === "") {
                     alert("Reply cannot be empty!");
                     return;
                 }
 
-                fetch(`/comment/${commentId}/reply`, {
+                fetch("{{ route('comment.reply', ['slug' => $berita->slug]) }}", {
                     method: "POST",
                     headers: {
                         "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content,
                         "Content-Type": "application/json",
                     },
-                    body: JSON.stringify({ reply: replyInput.value }),
+                    body: JSON.stringify({ id_comment: commentId, reply: replyInput.value }),
                 })
                 .then(response => response.json())
                 .then(data => {
-                    if (data.reply) {
-                        let repliesContainer = document.querySelector(`.replies[data-id="${commentId}"]`);
-                        repliesContainer.innerHTML += `<div class="mt-2"><strong>${data.user.name}</strong>: ${data.reply}</div>`;
-                        replyInput.value = "";
+                    if (data.error) {
+                        alert(data.error);
+                        return;
                     }
+
+                    let repliesContainer = document.querySelector(`.replies[data-id="${commentId}"]`);
+                    if (repliesContainer) {
+                        repliesContainer.innerHTML += `
+                            <div class="mt-2 d-flex">
+                                <img src="${data.user.avatar}" alt="Profile" class="rounded-circle" width="30">
+                                <div class="ms-2">
+                                    <strong>${data.user.name}</strong>: ${data.reply}
+                                </div>
+                            </div>`;
+                    }
+                    replyInput.value = "";
                 })
                 .catch(error => console.error("Error:", error));
             });
