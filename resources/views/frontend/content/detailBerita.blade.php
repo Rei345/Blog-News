@@ -103,13 +103,20 @@
                                         </form>
 
                                         <!-- Menampilkan balasan komentar -->
-                                        <div class="replies mt-2" data-id="{{ $comment->id }}">
+                                        @if ($comment->replies->count() > 0)
+                                        <button class="btn btn-sm btn-link show-replies-btn" data-id="{{ $comment->id }}">
+                                            Lihat Semua Balasan ({{ $comment->replies->count() }})
+                                        </button>
+                                        @endif
+
+                                        <!-- Menampilkan balasan komentar -->
+                                        <div class="replies mt-2" data-id="{{ $comment->id }}" style="display: none;">
                                             @foreach ($comment->replies as $reply)
                                                 <div class="d-flex align-items-start mt-2">
                                                     @php
                                                         $commenter = $reply->commentable;
                                                         $avatar = asset('assets/img/default-avatar.png'); // Default avatar
-
+                                        
                                                         if ($commenter) {
                                                             if ($reply->commentable_type == \App\Models\User::class) {
                                                                 $avatar = $commenter->profile_picture ? asset('storage/' . $commenter->profile_picture) : $avatar;
@@ -122,7 +129,7 @@
                                                             }
                                                         }
                                                     @endphp
-
+                                        
                                                     <img src="{{ $avatar }}" alt="Profile" class="rounded-circle" width="30">
                                                     <div class="ms-2">
                                                         <strong>{{ $name }}</strong>: {{ $reply->reply }}
@@ -318,6 +325,23 @@
                 })
                 .catch(error => console.error("Error:", error));
             });
+        });
+    });
+</script>
+{{-- JQuery untuk menampilkan dan menyembunyikan komentar --}}
+<script>
+    $(document).ready(function () {
+        $(".show-replies-btn").click(function () {
+            var commentId = $(this).data("id");
+            var repliesDiv = $(".replies[data-id='" + commentId + "']");
+            
+            if (repliesDiv.is(":visible")) {
+                repliesDiv.slideUp();
+                $(this).text("Lihat Semua Balasan (" + repliesDiv.children().length + ")");
+            } else {
+                repliesDiv.slideDown();
+                $(this).text("Sembunyikan Balasan");
+            }
         });
     });
 </script>
