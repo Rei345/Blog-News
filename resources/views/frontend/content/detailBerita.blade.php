@@ -96,12 +96,6 @@
                                             <i class="fas fa-reply"></i> Reply
                                         </button>
 
-                                        <!-- Form Balasan (Hidden by Default) -->
-                                        <form class="reply-form mt-2" data-id="{{ $comment->id }}" style="display: none;">
-                                            <input type="text" class="form-control reply-input" placeholder="Write a reply..." />
-                                            <button type="button" class="btn btn-primary btn-sm submit-reply">Submit</button>
-                                        </form>
-
                                         <!-- Menampilkan balasan komentar -->
                                         @if ($comment->replies->count() > 0)
                                         <button class="btn btn-sm btn-link show-replies-btn" data-id="{{ $comment->id }}">
@@ -156,6 +150,9 @@
                                 @endif
                             >
                                 @csrf
+                                <!-- Hidden input untuk membedakan komentar biasa atau reply -->
+                                <input type="hidden" name="id_comment" id="id_comment" value=""> 
+
                                 <textarea 
                                     class="form-control me-2" 
                                     name="comment" 
@@ -199,131 +196,163 @@
     </div>
 </section>
 <script>
-    $('#commentForm').on('submit', function(e) {
-        e.preventDefault(); // Mencegah reload halaman
-        const formData = $(this).serialize(); // Ambil data form
+    $(document).ready(function () {
+        let isReplying = false; // Status untuk melacak apakah sedang dalam mode reply
+        let activeReplyBtn = null; // Menyimpan tombol reply yang aktif
 
-        $.ajax({
-            url: "{{ route('home.postComment', $berita->slug) }}", // Endpoint komentar
-            type: 'POST',
-            data: formData,
-            success: function(response) {
-                if (response && response.user && response.comment) {
-                    $('#comments').append(`
-                    <div class="d-flex mb-4">
-                        <div class="flex-shrink-0">
-                            <img class="rounded-circle" src="${response.user.avatar}" alt="Avatar" />
-                        </div>
-                        <div class="ms-3">
-                            <div class="fw-bold">${response.user.name}</div>
-                            <p class="mb-0">${response.comment}</p>
-                        </div>
-                    </div>
-                    `);
-                    $('#commentForm')[0].reset(); // Reset form setelah submit
-                } else {
-                    alert('Error: Data tidak valid.');
+        // Submit Komentar atau Balasan
+        $('#commentForm').on('submit', function (e) {
+            e.preventDefault();
+
+            const formData = {
+                comment: $('textarea[name="comment"]').val(),
+                id_comment: $('#id_comment').val(),
+            };
+
+            $.ajax({
+                url: "{{ route('home.postComment', $berita->slug) }}",
+                type: 'POST',
+                data: formData,
+                headers: {
+                    "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function (response) {
+                    if (response && response.user) {
+                        const avatar = response.user.avatar;
+                        const name = response.user.name;
+
+                        const commentHtml = `
+                            <div class="d-flex mb-4">
+                                <div class="flex-shrink-0">
+                                    <img class="rounded-circle" src="${avatar}" alt="Avatar" width="40" />
+                                </div>
+                                <div class="ms-3">
+                                    <div class="fw-bold">${name}</div>
+                                    <p class="mb-0">${response.comment || response.reply}</p>
+                                    <button class="btn btn-sm btn-outline-primary like-btn" data-id="${response.id}">
+                                        <i class="fas fa-thumbs-up"></i> Like (<span class="like-count">0</span>)
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-secondary reply-btn" data-id="${response.id}">
+                                        <i class="fas fa-reply"></i> Reply
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+
+                        if (response.comment) {
+                            // Untuk komentar utama
+                            $('#comments').append(commentHtml);
+                        } else if (response.reply) {
+                            // Untuk balasan (reply)
+                            const replyHtml = `
+                                <div class="d-flex align-items-start mt-2">
+                                    <img src="${avatar}" alt="Profile" class="rounded-circle" width="30">
+                                    <div class="ms-2">
+                                        <strong>${name}</strong>: ${response.reply}
+                                    </div>
+                                </div>
+                            `;
+
+                            // Menampilkan balasan di bawah komentar terkait
+                            const repliesContainer = $(`.replies[data-id="${formData.id_comment}"]`);
+                            if (repliesContainer.length) {
+                                repliesContainer.append(replyHtml).show();
+                            } else {
+                                // Jika kontainer balasan belum ada, buat baru
+                                $(`.reply-btn[data-id="${formData.id_comment}"]`).closest('.ms-3').append(`
+                                    <div class="replies mt-2" data-id="${formData.id_comment}">
+                                        ${replyHtml}
+                                    </div>
+                                `);
+                            }
+                        }
+
+                        $('#commentForm')[0].reset();
+                        $('#id_comment').val('');
+                        isReplying = false;
+                        if (activeReplyBtn) {
+                            activeReplyBtn.removeClass('active-reply'); // Hapus highlight
+                            activeReplyBtn = null;
+                        }
+                    } else {
+                        alert('Error: Data tidak valid.');
+                    }
+                },
+                error: function (xhr) {
+                    alert(xhr.responseJSON?.error || 'Terjadi kesalahan.');
                 }
-            },
-            error: function(xhr) {
-                alert('Terjadi kesalahan: ' + xhr.responseJSON.message);
+            });
+        });
+
+        // Event delegation untuk tombol reply
+        $(document).on('click', '.reply-btn', function (e) {
+            e.stopPropagation(); // Mencegah trigger event klik pada dokumen
+
+            const commentId = $(this).data('id');
+
+            // Toggle reply mode
+            if (isReplying && activeReplyBtn && activeReplyBtn.is(this)) {
+                // Membatalkan mode reply jika tombol yang sama diklik lagi
+                $('#id_comment').val('');
+                $(this).removeClass('active-reply');
+                isReplying = false;
+                activeReplyBtn = null;
+            } else {
+                // Mengaktifkan mode reply
+                $('#id_comment').val(commentId);
+                $('textarea[name="comment"]').focus();
+
+                // Highlight tombol reply yang aktif
+                $('.reply-btn').removeClass('active-reply');
+                $(this).addClass('active-reply');
+
+                isReplying = true;
+                activeReplyBtn = $(this);
             }
         });
-    });
-</script>
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        // Like Comment
-        document.querySelectorAll(".like-btn").forEach(button => {
-            button.addEventListener("click", function () {
-                let userLoggedIn = "{{ auth('pengunjung')->check() || auth('user')->check() }}";
-                if (!userLoggedIn) {
-                    alert("You need to log in to like a comment!");
-                    return;
-                }
-                let commentId = this.getAttribute("data-id");
-                let likeCountElement = this.querySelector(".like-count");
 
-                fetch("{{ route('comment.like', ['slug' => $berita->slug]) }}", { 
-                    method: "POST",
-                    headers: {
-                        "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content,
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({ id_comment: commentId }),
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.message === "Liked") {
-                        likeCountElement.textContent = parseInt(likeCountElement.textContent) + 1;
-                    } else {
-                        likeCountElement.textContent = parseInt(likeCountElement.textContent) - 1;
-                    }
-                })
-                .catch(error => console.error("Error:", error));
-            });
-        });
-    });
-</script>
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        // Toggle Reply Form
-        document.querySelectorAll(".reply-btn").forEach(button => {
-            button.addEventListener("click", function () {
-                let commentId = this.getAttribute("data-id");
-                let replyForm = document.querySelector(`.reply-form[data-id='${commentId}']`);
-
-                if (replyForm) {
-                    replyForm.style.display = replyForm.style.display === "none" ? "block" : "none";
-                }
-            });
+        // Membatalkan reply dengan klik di area kosong
+        $(document).on('click', function (e) {
+            if (!$(e.target).closest('#commentForm, .reply-btn').length && isReplying) {
+                $('#id_comment').val('');
+                $('.reply-btn').removeClass('active-reply');
+                isReplying = false;
+                activeReplyBtn = null;
+            }
         });
 
-        // Submit Reply
-        let isAuthenticated = document.querySelector('meta[name="user-auth"]').content === "1";
-        document.querySelectorAll(".submit-reply").forEach(button => {
-            button.addEventListener("click", function () {
-                let userLoggedIn = "{{ auth('pengunjung')->check() || auth('user')->check() }}";
-                if (!userLoggedIn) {
-                    alert("You need to log in to reply!");
-                    return;
-                }
+        // Event delegation untuk tombol like
+        $(document).on('click', '.like-btn', function () {
+            let userLoggedIn = "{{ auth('pengunjung')->check() || auth('user')->check() }}";
+            if (!userLoggedIn) {
+                alert("You need to log in to like a comment!");
+                return;
+            }
 
-                let commentId = this.closest(".reply-form").getAttribute("data-id");
-                let replyInput = this.previousElementSibling;
-                if (replyInput.value.trim() === "") {
-                    alert("Reply cannot be empty!");
-                    return;
-                }
+            const commentId = $(this).data('id');
+            const likeCountElement = $(this).find('.like-count');
 
-                fetch("{{ route('comment.reply', ['slug' => $berita->slug]) }}", {
-                    method: "POST",
-                    headers: {
-                        "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content,
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({ id_comment: commentId, reply: replyInput.value }),
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.error) {
-                        alert(data.error);
-                        return;
+            $.ajax({
+                url: "{{ route('comment.like', ['slug' => $berita->slug]) }}",
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ id_comment: commentId }),
+                headers: {
+                    "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function (response) {
+                    if (response.message === "Liked") {
+                        likeCountElement.text(parseInt(likeCountElement.text()) + 1);
+                        $(this).addClass('liked');
+                    } else if (response.message === "Unliked") {
+                        const currentCount = parseInt(likeCountElement.text());
+                        likeCountElement.text(currentCount > 0 ? currentCount - 1 : 0);
+                        $(this).removeClass('liked');
                     }
-
-                    let repliesContainer = document.querySelector(`.replies[data-id="${commentId}"]`);
-                    if (repliesContainer) {
-                        repliesContainer.innerHTML += `
-                            <div class="mt-2 d-flex">
-                                <img src="${data.user.avatar}" alt="Profile" class="rounded-circle" width="30">
-                                <div class="ms-2">
-                                    <strong>${data.user.name}</strong>: ${data.reply}
-                                </div>
-                            </div>`;
-                    }
-                    replyInput.value = "";
-                })
-                .catch(error => console.error("Error:", error));
+                },
+                error: function () {
+                    alert('Gagal menyukai komentar.');
+                }
             });
         });
     });

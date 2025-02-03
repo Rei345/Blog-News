@@ -170,11 +170,12 @@
 
             <div class="col-xl-5 col-lg-12 col-md-9">
 
-                <div class="card o-hidden border-0 shadow-lg my-5">
+                <div class="card o-hidden border-1 shadow-lg my-5">
                     <div class="card-body p-0">
                         <!-- Nested Row within Card Body -->
                             <div class="p-2">
                                 <div class="text-center">
+                                    <img src="{{ asset('assets-fe/assets/logo.png') }}" class="w-50" alt="">
                                     <h1 class="h4 text-gray-900 mt-3">Welcome Back!</h1>
                                 </div>
 

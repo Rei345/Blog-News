@@ -35,6 +35,10 @@
             .kategori-list li {
                 display: inline-block;
             }
+            .active-reply {
+                background-color: #d4edda;
+                border-color: #c3e6cb;
+            }
         </style>
             
     </head>

@@ -7,11 +7,9 @@ use App\Models\Page;
 use App\Models\Berita;
 use App\Models\Comment;
 use App\Models\Kategori;
-use App\Models\Pengunjung;
 use App\Models\CommentLike;
 use App\Models\CommentReply;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class HomeController extends Controller
@@ -115,40 +113,54 @@ class HomeController extends Controller
             'comment' => 'required|max:500',
         ]);
 
-        // Cari berita berdasarkan slug
         $berita = Berita::where('slug', $slug)->firstOrFail();
+        $user = auth('pengunjung')->user() ?? auth('user')->user();
 
-        // Tentukan user berdasarkan guard yang aktif
-        $user = null;
-        if (auth('pengunjung')->check()) {
-            $user = auth('pengunjung')->user();
-        } elseif (auth('user')->check()) {
-            $user = auth('user')->user();
-        }
-
-        // Jika user tidak ditemukan, kembalikan respons unauthorized
         if (!$user) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
-        // Simpan komentar menggunakan polymorphic relationship
-        $comment = Comment::create([
-            'comment' => $request->comment,
-            'commentable_id' => $user->id, // User yang memberi komentar
-            'commentable_type' => get_class($user), // Model User atau Pengunjung
-            'id_berita' => $berita->id_berita, // Berita yang dikomentari
-        ]);        
+        
+        if ($request->filled('id_comment')) {
+            $comment = Comment::find($request->id_comment);
+            if (!$comment) {
+                return response()->json(['error', 'Komentar tidak ditemukan.'], 404);
+            }
 
-        // Kembalikan respons JSON
-        return response()->json([
-            'user' => [
-                'name' => $user->nama_pengunjung ?? $user->name,
-                'avatar' => $user instanceof \App\Models\Pengunjung
-                    ? ($user->foto_profile ? $user->foto_profile : asset('assets/img/default-avatar.png'))
-                    : ($user->profile_picture ? $user->profile_picture : asset('assets/img/default-avatar.png')),
-            ],
-            'comment' => $comment->comment,
-        ]);
+            $reply = CommentReply::create([
+                'id_comment' => $request->id_comment,
+                'commentable_id' => $user->id,
+                'commentable_type' => get_class($user),
+                'reply' => $request->comment,
+            ]);
+
+            return response()->json([
+                'id' => $comment->id, 
+                'user' => [
+                    'name' => $user->nama_pengunjung ?? $user->name,
+                    'avatar' => $user instanceof \App\Models\Pengunjung
+                        ? ($user->foto_profile ? $user->foto_profile : asset('assets/img/default-avatar.png'))
+                        : ($user->profile_picture ? asset('storage/'. $user->profile_picture) : asset('assets/img/default-avatar.png')),
+                ],
+                'reply' => $reply->reply]);
+        } else {
+            $comment = Comment::create([
+                'comment' => $request->comment,
+                'commentable_id' => $user->id,
+                'commentable_type' => get_class($user),
+                'id_berita' => $berita->id_berita,
+            ]);
+
+            return response()->json([
+                'id' => $comment->id,
+                'user' => [
+                    'name' => $user->nama_pengunjung ?? $user->name,
+                    'avatar' => $user instanceof \App\Models\Pengunjung
+                        ? ($user->foto_profile ? $user->foto_profile : asset('assets/img/default-avatar.png'))
+                        : ($user->profile_picture ? asset('storage/'. $user->profile_picture) : asset('assets/img/default-avatar.png')),
+                ],
+                'comment' => $comment->comment]);
+        }
     }
 
     public function detailPage($id)
@@ -189,19 +201,16 @@ class HomeController extends Controller
     {
         try {
             $user = auth('pengunjung')->user() ?? auth('user')->user();
-
             if (!$user) {
                 return response()->json(['error' => 'Unauthorized'], 401);
             }
 
             $commentId = $request->input('id_comment');
-
             if (!$commentId) {
                 return response()->json(['error' => 'Invalid comment ID'], 400);
             }
 
             $comment = Comment::where('id', $commentId)->first();
-
             if (!$comment) {
                 return response()->json(['error' => 'Comment not found'], 404);
             }
@@ -213,14 +222,14 @@ class HomeController extends Controller
 
             if ($like) {
                 $like->delete();
-                $liked = false;
+                return response()->json(['message' => 'Unliked']);
             } else {
                 CommentLike::create([
                     'id_comment' => $comment->id,
                     'commentable_id' => $user->id,
                     'commentable_type' => get_class($user),
                 ]);
-                $liked = true;
+                return response()->json(['message' => 'Liked']);
             }
 
             return response()->json([
@@ -232,44 +241,6 @@ class HomeController extends Controller
             Log::error("Error in likeComment: " . $e->getMessage());
             return response()->json(['error' => 'Server error', 'message' => $e->getMessage()], 500);
         }
-    }
-
-    public function replyComment(Request $request, $commentId)
-    {
-        Log::info('Reply Received:', [
-            'comment_id' => $commentId,
-            'reply' => $request->input('reply')
-        ]);
-
-        $user = auth('pengunjung')->user() ?? auth('user')->user();
-
-        if (!$user) {
-            return response()->json(['error' => 'Unauthorized'], 401);
-        }
-
-        $comment = Comment::find($request->id_comment);
-
-        if (!$comment) {
-            return response()->json(['error' => 'Comment not found'], 404);
-        }
-
-        $reply = CommentReply::create([
-            'id_comment' => $comment->id,
-            'commentable_id' => $user->id,
-            'commentable_type' => get_class($user),
-            'reply' => $request->reply,
-        ]);
-
-        return response()->json([
-            'user' => [
-                'name' => $user->nama_pengunjung ?? $user->name,
-                'avatar' => $user instanceof \App\Models\Pengunjung
-                    ? ($user->foto_profile ? $user->foto_profile : asset('assets/img/default-avatar.png'))
-                    : ($user->profile_picture ? $user->profile_picture : asset('assets/img/default-avatar.png')),
-            ],
-            'reply' => $reply->reply,
-            'total_replies' => CommentReply::where('id_comment', $comment->id)->count(),
-        ]);                      
     }
 
     private function getMenu()
