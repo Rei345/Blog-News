@@ -172,10 +172,10 @@
                 <div class="card o-hidden border-0 shadow-lg my-5">
                     <div class="card-body p-0">
                         <!-- Nested Row within Card Body -->
-                        <div class="p-2">
-                            <div class="text-center">
+                        <div class="">
+                            <div class="text-center mt-3">
                                 <img src="{{ asset('assets-fe/assets/logo.png') }}" class="w-50" alt="">
-                                <h1 class="h4 text-gray-900 mt-3">Create an Account!</h1>
+                                <h1 class="h4 text-gray-900">Create an Account!</h1>
                             </div>
 
                             @if (session()->has('pesan'))

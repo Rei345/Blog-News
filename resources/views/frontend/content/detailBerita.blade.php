@@ -63,11 +63,11 @@
                                     <div class="flex-shrink-0">
                                         <!-- Menampilkan avatar berdasarkan apakah yang memberikan komentar user atau pengunjung -->
                                         @if ($comment->commentable_type == \App\Models\User::class)
-                                            <img class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;" 
-                                                src="{{ asset('storage/' . $comment->commentable->profile_picture) }}" alt="Avatar" />
+                                        <img class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;" 
+                                                src="{{ $comment->commentable->profile_picture ? asset('storage/' . $comment->commentable->profile_picture) : asset('assets/img/undraw_profile.svg') }}" alt="Avatar" />                                    
                                         @elseif ($comment->commentable_type == \App\Models\Pengunjung::class)
                                         <img class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;" 
-                                                src="{{ $comment->commentable->foto_profile ?? asset('assets/img/default-avatar.png') }}" alt="Avatar" />                                    
+                                                src="{{ $comment->commentable->foto_profile ?? asset('assets/img/undraw_profile.svg') }}" alt="Avatar" />                                    
                                         @else
                                             <img class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;" 
                                                 src="https://sguru.org/wp-content/uploads/2017/06/cool-anonymous-profile-pictures-VDWrWSva.jpg" alt="Avatar" />
@@ -87,8 +87,11 @@
                                         <p class="mb-0">{{ $comment->comment }}</p>
 
                                         <!-- Like Button -->
-                                        <button class="btn btn-sm btn-outline-primary like-btn" data-id="{{ $comment->id }}">
-                                            <i class="fas fa-thumbs-up"></i> Like (<span class="like-count">{{ $comment->likes->count() }}</span>)
+                                        @php
+                                            $isLiked = $comment->likes->where('user_id', auth()->id())->count() > 0;
+                                        @endphp
+                                        <button class="btn btn-sm btn-outline-primary like-btn {{ $isLiked ? 'liked' : '' }}" data-id="{{ $comment->id }}">
+                                            <i class="fas fa-thumbs-up {{ $isLiked ? 'animate-like' : '' }}"></i> Like (<span class="like-count">{{ $comment->likes->count() }}</span>)
                                         </button>                                        
 
                                         <!-- Reply Button -->
@@ -109,7 +112,7 @@
                                                 <div class="d-flex align-items-start mt-2">
                                                     @php
                                                         $commenter = $reply->commentable;
-                                                        $avatar = asset('assets/img/default-avatar.png'); // Default avatar
+                                                        $avatar = asset('assets/img/undraw_profile.svg'); // Default avatar
                                         
                                                         if ($commenter) {
                                                             if ($reply->commentable_type == \App\Models\User::class) {
@@ -329,8 +332,9 @@
                 return;
             }
 
-            const commentId = $(this).data('id');
-            const likeCountElement = $(this).find('.like-count');
+            const button = $(this);
+            const commentId = button.data('id');
+            const likeCountElement = button.find('.like-count');
 
             $.ajax({
                 url: "{{ route('comment.like', ['slug' => $berita->slug]) }}",
@@ -343,11 +347,13 @@
                 success: function (response) {
                     if (response.message === "Liked") {
                         likeCountElement.text(parseInt(likeCountElement.text()) + 1);
-                        $(this).addClass('liked');
+                        button.addClass('liked');
+                        button.find('i').addClass('animate-like');
                     } else if (response.message === "Unliked") {
                         const currentCount = parseInt(likeCountElement.text());
                         likeCountElement.text(currentCount > 0 ? currentCount - 1 : 0);
-                        $(this).removeClass('liked');
+                        button.removeClass('liked');
+                        button.find('i').removeClass('animate-like');
                     }
                 },
                 error: function () {

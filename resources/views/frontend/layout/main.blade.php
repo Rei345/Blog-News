@@ -39,6 +39,23 @@
                 background-color: #d4edda;
                 border-color: #c3e6cb;
             }
+            /* Warna tombol saat sudah di-like */
+            .liked {
+                background-color: #007bff !important;
+                color: white !important;
+                border-color: #007bff !important;
+                transition: background-color 0.3s ease, color 0.3s ease;
+            }
+            /* Efek animasi untuk ikon like */
+            .animate-like {
+                animation: pop 0.4s ease-out;
+            }
+            /* Keyframe animasi pop */
+            @keyframes pop {
+                0% { transform: scale(1); }
+                50% { transform: scale(1.4); }
+                100% { transform: scale(1); }
+            }
         </style>
             
     </head>

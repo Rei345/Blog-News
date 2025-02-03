@@ -139,8 +139,8 @@ class HomeController extends Controller
                 'user' => [
                     'name' => $user->nama_pengunjung ?? $user->name,
                     'avatar' => $user instanceof \App\Models\Pengunjung
-                        ? ($user->foto_profile ? $user->foto_profile : asset('assets/img/default-avatar.png'))
-                        : ($user->profile_picture ? asset('storage/'. $user->profile_picture) : asset('assets/img/default-avatar.png')),
+                        ? ($user->foto_profile ? $user->foto_profile : asset('assets/img/undraw_profile.svg'))
+                        : ($user->profile_picture ? asset('storage/'. $user->profile_picture) : asset('assets/img/undraw_profile.svg')),
                 ],
                 'reply' => $reply->reply]);
         } else {
@@ -156,8 +156,8 @@ class HomeController extends Controller
                 'user' => [
                     'name' => $user->nama_pengunjung ?? $user->name,
                     'avatar' => $user instanceof \App\Models\Pengunjung
-                        ? ($user->foto_profile ? $user->foto_profile : asset('assets/img/default-avatar.png'))
-                        : ($user->profile_picture ? asset('storage/'. $user->profile_picture) : asset('assets/img/default-avatar.png')),
+                        ? ($user->foto_profile ? $user->foto_profile : asset('assets/img/undraw_profile.svg'))
+                        : ($user->profile_picture ? asset('storage/'. $user->profile_picture) : asset('assets/img/undraw_profile.svg')),
                 ],
                 'comment' => $comment->comment]);
         }
