@@ -137,6 +137,10 @@
                         </div>
                     </form>
 
+                    <a href="{{ route('home.index') }}" type="button" class="btn btn-outline-primary">
+                        Masuk ke berita
+                    </a>
+
                     <!-- Topbar Navbar -->
                     <ul class="navbar-nav ml-auto">
 
