@@ -120,6 +120,11 @@ class HomeController extends Controller
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
+        // Cek apakah foto profile berupa URL atau path di storage
+        $fotoProfile = $user instanceof \App\Models\Pengunjung ? $user->foto_profile : $user->profile_picture;
+        $isUrl = filter_var($fotoProfile, FILTER_VALIDATE_URL);
+        $avatar = $isUrl ? $fotoProfile : asset('storage/' . $fotoProfile);
+        $avatar = $fotoProfile ? $avatar : asset('assets/img/undraw_posting_photo.svg');
         
         if ($request->filled('id_comment')) {
             $comment = Comment::find($request->id_comment);
@@ -138,9 +143,7 @@ class HomeController extends Controller
                 'id' => $comment->id, 
                 'user' => [
                     'name' => $user->nama_pengunjung ?? $user->name,
-                    'avatar' => $user instanceof \App\Models\Pengunjung
-                        ? ($user->foto_profile ? $user->foto_profile : asset('assets/img/undraw_profile.svg'))
-                        : ($user->profile_picture ? asset('storage/'. $user->profile_picture) : asset('assets/img/undraw_profile.svg')),
+                    'avatar' => $avatar,
                 ],
                 'reply' => $reply->reply]);
         } else {
@@ -155,9 +158,7 @@ class HomeController extends Controller
                 'id' => $comment->id,
                 'user' => [
                     'name' => $user->nama_pengunjung ?? $user->name,
-                    'avatar' => $user instanceof \App\Models\Pengunjung
-                        ? ($user->foto_profile ? $user->foto_profile : asset('assets/img/undraw_profile.svg'))
-                        : ($user->profile_picture ? asset('storage/'. $user->profile_picture) : asset('assets/img/undraw_profile.svg')),
+                    'avatar' => $avatar,
                 ],
                 'comment' => $comment->comment]);
         }
@@ -210,36 +211,42 @@ class HomeController extends Controller
                 return response()->json(['error' => 'Invalid comment ID'], 400);
             }
 
-            $comment = Comment::where('id', $commentId)->first();
+            $comment = Comment::find($commentId);
             if (!$comment) {
                 return response()->json(['error' => 'Comment not found'], 404);
             }
 
-            $like = CommentLike::where('id_comment', $comment->id)
-                                ->where('commentable_id', $user->id)
-                                ->where('commentable_type', get_class($user))
-                                ->first();
+            $like = CommentLike::where([
+                'id_comment' => $comment->id,
+                'commentable_id' => $user->id,
+                'commentable_type' => get_class($user),
+            ])->first();
 
             if ($like) {
+                // Jika sudah like, hapus like
                 $like->delete();
-                return response()->json(['message' => 'Unliked']);
+                $status = "Unliked";
             } else {
+                // Jika belum like, tambahkan
                 CommentLike::create([
                     'id_comment' => $comment->id,
                     'commentable_id' => $user->id,
                     'commentable_type' => get_class($user),
                 ]);
-                return response()->json(['message' => 'Liked']);
+                $status = "Liked";
             }
 
+            // Ambil total like setelah perubahan
+            $totalLikes = CommentLike::where('id_comment', $comment->id)->count();
+
             return response()->json([
-                'message' => $liked ? 'Liked' : 'Unliked',
-                'total_likes' => CommentLike::where('id_comment', $comment->id)->count()
+                'message' => $status,
+                'total_likes' => $totalLikes
             ]);
 
         } catch (\Exception $e) {
             Log::error("Error in likeComment: " . $e->getMessage());
-            return response()->json(['error' => 'Server error', 'message' => $e->getMessage()], 500);
+            return response()->json(['error' => 'Server error'], 500);
         }
     }
 

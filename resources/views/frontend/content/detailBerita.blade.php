@@ -66,8 +66,14 @@
                                         <img class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;" 
                                                 src="{{ $comment->commentable->profile_picture ? asset('storage/' . $comment->commentable->profile_picture) : asset('assets/img/undraw_profile.svg') }}" alt="Avatar" />                                    
                                         @elseif ($comment->commentable_type == \App\Models\Pengunjung::class)
+                                            @php
+                                                $fotoProfile = $comment->commentable->foto_profile;
+                                                // Cek apakah foto_profile adalah URL (provider) atau path lokal (storage)
+                                                $isUrl = filter_var($fotoProfile, FILTER_VALIDATE_URL);
+                                                $profileSrc = $isUrl ? $fotoProfile : asset('storage/' . $fotoProfile);
+                                            @endphp
                                         <img class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;" 
-                                                src="{{ $comment->commentable->foto_profile ?? asset('assets/img/undraw_profile.svg') }}" alt="Avatar" />                                    
+                                                src="{{ $profileSrc }}" alt="Avatar" />                                                                                
                                         @else
                                             <img class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;" 
                                                 src="https://sguru.org/wp-content/uploads/2017/06/cool-anonymous-profile-pictures-VDWrWSva.jpg" alt="Avatar" />
@@ -88,11 +94,15 @@
 
                                         <!-- Like Button -->
                                         @php
-                                            $isLiked = $comment->likes->where('user_id', auth()->id())->count() > 0;
+                                            $user = auth('pengunjung')->user() ?? auth('user')->user();
+                                            $isLiked = $user ? $comment->likes->where('commentable_id', $user->id)->count() > 0 : false;
                                         @endphp
-                                        <button class="btn btn-sm btn-outline-primary like-btn {{ $isLiked ? 'liked' : '' }}" data-id="{{ $comment->id }}">
-                                            <i class="fas fa-thumbs-up {{ $isLiked ? 'animate-like' : '' }}"></i> Like (<span class="like-count">{{ $comment->likes->count() }}</span>)
-                                        </button>                                        
+
+                                        <button class="btn btn-sm btn-outline-primary like-btn {{ $isLiked ? 'liked' : '' }}" 
+                                                data-id="{{ $comment->id }}">
+                                            <i class="fas fa-thumbs-up {{ $isLiked ? 'animate-like' : '' }}"></i> 
+                                            Like (<span class="like-count">{{ $comment->likes->count() }}</span>)
+                                        </button>                                       
 
                                         <!-- Reply Button -->
                                         <button class="btn btn-sm btn-outline-secondary reply-btn" data-id="{{ $comment->id }}">
@@ -112,21 +122,29 @@
                                                 <div class="d-flex align-items-start mt-2">
                                                     @php
                                                         $commenter = $reply->commentable;
-                                                        $avatar = asset('assets/img/undraw_profile.svg'); // Default avatar
-                                        
+                                                        $defaultAvatar = asset('assets/img/undraw_profile.svg'); // Default avatar
+                                                        
                                                         if ($commenter) {
                                                             if ($reply->commentable_type == \App\Models\User::class) {
-                                                                $avatar = $commenter->profile_picture ? asset('storage/' . $commenter->profile_picture) : $avatar;
+                                                                // Jika user memiliki foto profil di storage
+                                                                $avatar = $commenter->profile_picture ? asset('storage/' . $commenter->profile_picture) : $defaultAvatar;
                                                                 $name = $commenter->name;
                                                             } elseif ($reply->commentable_type == \App\Models\Pengunjung::class) {
-                                                                $avatar = $commenter->foto_profile ? $commenter->foto_profile : $avatar;
+                                                                // Cek apakah foto profil berupa URL atau path lokal
+                                                                $fotoProfile = $commenter->foto_profile;
+                                                                $isUrl = filter_var($fotoProfile, FILTER_VALIDATE_URL);
+                                                                $avatar = $isUrl ? $fotoProfile : asset('storage/' . $fotoProfile);
                                                                 $name = $commenter->nama_pengunjung;
                                                             } else {
+                                                                $avatar = $defaultAvatar;
                                                                 $name = "Anonymous";
                                                             }
+                                                        } else {
+                                                            $avatar = $defaultAvatar;
+                                                            $name = "Anonymous";
                                                         }
                                                     @endphp
-                                        
+
                                                     <img src="{{ $avatar }}" alt="Profile" class="rounded-circle" width="30">
                                                     <div class="ms-2">
                                                         <strong>{{ $name }}</strong>: {{ $reply->reply }}
@@ -346,18 +364,20 @@
                 },
                 success: function (response) {
                     if (response.message === "Liked") {
-                        likeCountElement.text(parseInt(likeCountElement.text()) + 1);
                         button.addClass('liked');
                         button.find('i').addClass('animate-like');
-                    } else if (response.message === "Unliked") {
-                        const currentCount = parseInt(likeCountElement.text());
-                        likeCountElement.text(currentCount > 0 ? currentCount - 1 : 0);
+                    } else {
                         button.removeClass('liked');
                         button.find('i').removeClass('animate-like');
                     }
+                    likeCountElement.text(response.total_likes);
                 },
-                error: function () {
-                    alert('Gagal menyukai komentar.');
+                error: function (xhr) {
+                    if (xhr.status === 401) {
+                        alert('You need to log in to like a comment.');
+                    } else {
+                        alert('An error occurred while liking the comment.');
+                    }
                 }
             });
         });

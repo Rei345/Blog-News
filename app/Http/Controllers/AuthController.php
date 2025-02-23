@@ -8,7 +8,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Laravolt\Avatar\Facade as Avatar;
+use Illuminate\Support\Facades\Storage;
 use Laravel\Socialite\Facades\Socialite;
+use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
@@ -50,22 +53,35 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         // Validasi input
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'nama_pengunjung' => 'required|string|max:255',
             'email' => 'required|email|unique:pengunjung,email',
             'password' => 'required|string|min:6|confirmed',
+        ], [
+            'password.confirmed' => 'Konfirmasi password tidak sesuai dengan password.',
         ]);
 
-        // Membuat pengguna tanpa role khusus
+        // Jika validasi gagal, redirect kembali dengan error
+        if ($validator->fails()) {
+            return redirect()->back()->withInput()->with('pesan', ['danger', $validator->errors()->first()]);
+        }
+
+        // Generate Avatar dari nama_pengunjung
+        $avatar = Avatar::create($request->nama_pengunjung)->toBase64();
+        $avatarData = base64_decode(str_replace('data:image/png;base64,', '', $avatar));
+        $avatarPath = 'avatars/' . uniqid() . '.png';
+        Storage::disk('public')->put($avatarPath, $avatarData);
+
+        // Buat Pengunjung Baru
         $pengunjung = Pengunjung::create([
             'nama_pengunjung' => $request->nama_pengunjung,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'foto_profile' => asset('assets/img/undraw_profile_1.svg'),
+            'foto_profile' => $avatarPath,
         ]);
 
         // Redirect ke halaman login dengan pesan sukses
-        return redirect()->route('auth.index')->with('pesan', ['success', 'Akun berhasil dibuat. Silahkan login!']);
+        return redirect()->route('auth.index')->with('pesan', ['success', 'Akun berhasil dibuat. Silakan login!']);
     }
 
     public function logout()
@@ -88,14 +104,14 @@ class AuthController extends Controller
     // Redirect to Google
     public function redirectToGoogle()
     {
-        return Socialite::driver('google')->stateless()->redirect();
+        return Socialite::driver('google')->redirect();
     }
 
     // Handle Google callback
     public function handleGoogleCallback()
     {
         try {
-            $user = Socialite::driver('google')->user();
+            $user = Socialite::driver('google')->stateless()->user();
             $this->registerOrLogin($user, 'google');
             return redirect()->route('home.index');
         } catch (\Exception $e) {

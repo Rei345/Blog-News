@@ -179,7 +179,7 @@
                             </div>
 
                             @if (session()->has('pesan'))
-                                <div class="alert alert-{{ session()->get('pesan')[0] }}">
+                                <div class="m-3 alert alert-{{ session()->get('pesan')[0] }}">
                                     {{ session()->get('pesan')[1] }}
                                 </div>
                             @endif
@@ -191,7 +191,7 @@
                                 </div>
                                 <div class="inputForm">
                                     <div class="fa fa-user"></div>                                    
-                                    <input placeholder="Enter your Name" class="input" name="name" type="text" required>
+                                    <input placeholder="Enter your Name" class="input" name="nama_pengunjung" type="text" required>
                                 </div>
                                 <div class="flex-column">
                                     <label>Email </label>
@@ -212,7 +212,7 @@
                                     <input placeholder="Enter your Password" class="input" name="password" type="password" required>
                                 </div>
                                 <div class="flex-column">
-                                    <label>Password Confirmation</label>
+                                    <label>Konfimasi Password</label>
                                 </div>
                                 <div class="inputForm">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="20" viewBox="-64 0 512 512" height="20">
@@ -280,6 +280,43 @@
     <!-- Custom scripts for all pages-->
     <script src="{{ asset('assets/js/sb-admin-2.min.js') }}"></script>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.querySelector('#register-form'); // Form registrasi
+            const password = document.querySelector('#password');
+            const passwordConfirm = document.querySelector('#password_confirmation');
+
+            // Validasi sebelum submit
+            form.addEventListener('submit', function (event) {
+                if (password.value.length < 6) {
+                    event.preventDefault();
+                    showAlert('Password harus minimal 6 karakter!', 'danger');
+                } else if (password.value !== passwordConfirm.value) {
+                    event.preventDefault();
+                    showAlert('Konfirmasi password tidak sesuai!', 'danger');
+                }
+            });
+
+            // Fungsi untuk menampilkan alert dinamis
+            function showAlert(message, type) {
+                const alertBox = document.createElement('div');
+                alertBox.className = `alert alert-${type} alert-dismissible fade show`;
+                alertBox.role = 'alert';
+                alertBox.innerHTML = `
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                `;
+                document.body.prepend(alertBox); // Tambahkan alert ke atas halaman
+                
+                // Hapus alert setelah 5 detik
+                setTimeout(() => {
+                    alertBox.classList.remove('show');
+                    alertBox.classList.add('fade');
+                    setTimeout(() => alertBox.remove(), 500);
+                }, 5000);
+            }
+        });
+    </script>
 </body>
 
 </html>

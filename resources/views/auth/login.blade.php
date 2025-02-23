@@ -180,7 +180,7 @@
                                 </div>
 
                                 @if (session()->has('pesan'))
-                                    <div class="alert alert-{{ session()->get('pesan')[0] }}">
+                                    <div class="m-3 alert alert-{{ session()->get('pesan')[0] }}">
                                         {{ session()->get('pesan')[1] }}
                                     </div>
                                 @endif
